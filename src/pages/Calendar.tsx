@@ -1,10 +1,9 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
-import { Calendar } from 'lucide-react';
+import { Calendar as CalendarIcon } from 'lucide-react';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 
@@ -55,7 +54,7 @@ const formatDate = (dateString: string): string => {
   }).format(date);
 };
 
-const Calendar = () => {
+const CalendarPage = () => {
   const [selectedTab, setSelectedTab] = useState<string>("Tous");
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [monthFilter, setMonthFilter] = useState<string>("");
@@ -188,7 +187,7 @@ const Calendar = () => {
           <div className="bg-primary/5 border border-primary/20 rounded-lg p-6">
             <div className="flex items-start gap-4">
               <div className="p-3 bg-primary/10 rounded-full">
-                <Calendar className="h-6 w-6 text-primary" />
+                <CalendarIcon className="h-6 w-6 text-primary" />
               </div>
               <div>
                 <h3 className="text-xl font-bold mb-2">Besoin d'une date personnalisée?</h3>
@@ -287,4 +286,4 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
   );
 };
 
-export default Calendar;
+export default CalendarPage;
