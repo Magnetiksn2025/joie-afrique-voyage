@@ -37,7 +37,7 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4">Destinations</h3>
             <ul className="space-y-2">
               <li><Link to="/destinations/senegal" className="text-gray-400 hover:text-white transition-colors">Sénégal</Link></li>
-              <li><Link to="/destinations/cap-vert" className="text-gray-400 hover:text-white transition-colors">Cap Vert</Link></li>
+              <li><Link to="/destinations/capvert" className="text-gray-400 hover:text-white transition-colors">Cap Vert</Link></li>
               <li><Link to="/destinations/benin" className="text-gray-400 hover:text-white transition-colors">Bénin</Link></li>
             </ul>
           </div>

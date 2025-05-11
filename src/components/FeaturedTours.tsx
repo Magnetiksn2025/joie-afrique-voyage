@@ -2,6 +2,7 @@
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 type TourCardProps = {
   image: string;
@@ -12,6 +13,7 @@ type TourCardProps = {
   priceCouple: number;
   inclusions: string[];
   featured?: boolean;
+  destination: string;
 };
 
 const TourCard = ({ 
@@ -22,7 +24,8 @@ const TourCard = ({
   price, 
   priceCouple,
   inclusions, 
-  featured = false 
+  featured = false,
+  destination
 }: TourCardProps) => {
   return (
     <Card className={`overflow-hidden tour-card ${featured ? 'border-secondary border-2' : ''}`}>
@@ -68,9 +71,11 @@ const TourCard = ({
             </div>
             <div className="text-sm text-gray-500">{priceCouple}€ pour un couple</div>
           </div>
-          <Button className="bg-primary hover:bg-primary/90">
-            Réserver
-          </Button>
+          <Link to={`/destinations/${destination.toLowerCase()}`}>
+            <Button className="bg-primary hover:bg-primary/90">
+              Réserver
+            </Button>
+          </Link>
         </div>
       </CardFooter>
     </Card>
@@ -91,43 +96,46 @@ const FeaturedTours = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           <TourCard
-            image="https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?auto=format&fit=crop&q=80"
-            title="Découverte du Cap Vert"
-            days={5}
-            description="Un séjour de 5 jours pour explorer les merveilles naturelles et culturelles du Cap Vert."
-            price={785}
-            priceCouple={1450}
-            inclusions={[
-              "Transfert aéroport", 
-              "Hôtel 5 jours / 4 nuits", 
-              "Transport climatisé", 
-              "Petit-déjeuners et déjeuners", 
-              "Visites guidées"
-            ]}
-            featured={true}
-          />
-          <TourCard
-            image="https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&q=80"
-            title="Immersion au Sénégal"
+            image="/lovable-uploads/5d2a585b-5656-4c15-b32c-c56adcfe6c90.png"
+            title="Découverte du Sénégal"
             days={7}
-            description="7 jours d'exploration du Sénégal, de Dakar à la réserve de Bandia en passant par l'île de Gorée."
+            description="Un séjour de 7 jours pour explorer les merveilles naturelles et culturelles du Sénégal."
             price={865}
             priceCouple={1450}
+            destination="Senegal"
             inclusions={[
               "Transfert aéroport", 
               "Hôtel 7 jours / 6 nuits", 
               "Transport climatisé", 
               "Petit-déjeuners et déjeuners", 
-              "Guide touristique"
+              "Visites guidées"
             ]}
           />
           <TourCard
-            image="https://images.unsplash.com/photo-1469041797191-50ace28483c3?auto=format&fit=crop&q=80"
+            image="/lovable-uploads/29d4068a-4ec1-40ae-bb4e-2433df6ad0d4.png"
+            title="Immersion au Cap Vert"
+            days={5}
+            description="5 jours d'exploration du Cap Vert, de Mindelo à Santo Antão en passant par les plages paradisiaques."
+            price={785}
+            priceCouple={1450}
+            destination="CapVert"
+            inclusions={[
+              "Transfert aéroport", 
+              "Hôtel 5 jours / 4 nuits", 
+              "Transport climatisé", 
+              "Petit-déjeuners et déjeuners", 
+              "Guide touristique"
+            ]}
+            featured={true}
+          />
+          <TourCard
+            image="/lovable-uploads/017e7992-7a08-4753-90d7-040aa2f7c8b7.png"
             title="Trésors du Bénin"
             days={6}
             description="Découvrez l'histoire fascinante et les paysages uniques du Bénin lors de ce séjour de 6 jours."
             price={925}
             priceCouple={1650}
+            destination="Benin"
             inclusions={[
               "Transfert aéroport", 
               "Hôtel 6 jours / 5 nuits", 
@@ -139,9 +147,11 @@ const FeaturedTours = () => {
         </div>
         
         <div className="mt-12 text-center">
-          <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-            Voir toutes nos destinations
-          </Button>
+          <Link to="/destinations">
+            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+              Voir toutes nos destinations
+            </Button>
+          </Link>
         </div>
       </div>
     </section>

@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import CalendarPage from "./pages/Calendar";
 import NotFound from "./pages/NotFound";
+import DestinationPage from "./pages/Destination";
 
 const queryClient = new QueryClient();
 
@@ -20,6 +21,10 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/calendar" element={<CalendarPage />} />
+            <Route path="/destinations" element={<DestinationPage />} />
+            <Route path="/destinations/:id" element={<DestinationPage />} />
+            <Route path="/about" element={<NotFound />} />
+            <Route path="/contact" element={<NotFound />} />
             {/* Other routes will be added as we develop more pages */}
             <Route path="*" element={<NotFound />} />
           </Routes>

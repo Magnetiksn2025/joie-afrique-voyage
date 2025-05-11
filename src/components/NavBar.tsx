@@ -60,8 +60,10 @@ const NavBar = () => {
             <Info size={18} />
             <span>À Propos</span>
           </Link>
-          <Button className="bg-primary hover:bg-primary/90 text-white flex items-center">
-            <Mail className="mr-2 h-4 w-4" /> Contact
+          <Button className="bg-primary hover:bg-primary/90 text-white flex items-center" asChild>
+            <Link to="/contact">
+              <Mail className="mr-2 h-4 w-4" /> Contact
+            </Link>
           </Button>
         </div>
 
@@ -107,12 +109,13 @@ const NavBar = () => {
               <Info size={18} />
               <span>À Propos</span>
             </Link>
-            <Button 
-              className="bg-primary hover:bg-primary/90 text-white flex items-center w-full justify-center"
+            <Link 
+              to="/contact" 
+              className="bg-primary hover:bg-primary/90 text-white flex items-center w-full justify-center py-2 rounded-md"
               onClick={() => setIsMenuOpen(false)}
             >
               <Mail className="mr-2 h-4 w-4" /> Contact
-            </Button>
+            </Link>
           </div>
         </div>
       )}
