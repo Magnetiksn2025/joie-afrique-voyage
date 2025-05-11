@@ -1,9 +1,9 @@
-
 import React from 'react';
 import { useParams } from 'react-router-dom';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
 import { Button } from '@/components/ui/button';
+import NotFound from './NotFound';
 
 type DestinationData = {
   title: string;
