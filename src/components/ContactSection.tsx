@@ -77,32 +77,37 @@ const ContactSection = () => {
           {/* Contact Form */}
           <div className="bg-white p-8 rounded-lg shadow-sm border">
             <h3 className="text-xl font-bold mb-6">Envoyez-nous un message</h3>
-            <form className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <label htmlFor="name" className="text-sm font-medium">Nom complet</label>
-                  <Input id="name" placeholder="Votre nom" />
-                </div>
-                <div className="space-y-2">
-                  <label htmlFor="email" className="text-sm font-medium">Email</label>
-                  <Input id="email" type="email" placeholder="votre@email.com" />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="subject" className="text-sm font-medium">Sujet</label>
-                <Input id="subject" placeholder="Sujet de votre message" />
-              </div>
-              
-              <div className="space-y-2">
-                <label htmlFor="message" className="text-sm font-medium">Message</label>
-                <Textarea id="message" placeholder="Votre message" rows={5} />
-              </div>
-              
-              <Button className="w-full bg-primary hover:bg-primary/90 text-white">
-                Envoyer le message
-              </Button>
-            </form>
+            <form
+  className="space-y-4"
+  method="POST"
+  action="/send.php"
+>
+  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="space-y-2">
+      <label htmlFor="name" className="text-sm font-medium">Nom complet</label>
+      <Input id="name" name="name" placeholder="Votre nom" required />
+    </div>
+    <div className="space-y-2">
+      <label htmlFor="email" className="text-sm font-medium">Email</label>
+      <Input id="email" name="email" type="email" placeholder="votre@email.com" required />
+    </div>
+  </div>
+
+  <div className="space-y-2">
+    <label htmlFor="subject" className="text-sm font-medium">Sujet</label>
+    <Input id="subject" name="subject" placeholder="Sujet de votre message" />
+  </div>
+
+  <div className="space-y-2">
+    <label htmlFor="message" className="text-sm font-medium">Message</label>
+    <Textarea id="message" name="message" placeholder="Votre message" rows={5} required />
+  </div>
+<input type="text" name="honeypot" style={{ display: "none" }} tabIndex={-1} />
+  <Button type="submit" className="w-full bg-primary hover:bg-primary/90 text-white">
+    Envoyer le message
+  </Button>
+</form>
+
           </div>
         </div>
       </div>
