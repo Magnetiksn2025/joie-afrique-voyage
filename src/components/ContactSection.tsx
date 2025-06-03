@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -25,7 +24,6 @@ const ContactSection = () => {
               <div>
                 <h3 className="text-xl font-bold mb-1">Téléphone</h3>
                 <p className="text-gray-600">+221 78 308 35 35</p>
-                <p className="text-gray-600">+221 76 343 35 35</p>
               </div>
             </div>
             
@@ -35,7 +33,7 @@ const ContactSection = () => {
               </div>
               <div>
                 <h3 className="text-xl font-bold mb-1">Email</h3>
-                <p className="text-gray-600">lrad.ccia101@gmail.com</p>
+                <p className="text-gray-600">contact@lrad-tours.com</p>
               </div>
             </div>
             
@@ -45,8 +43,8 @@ const ContactSection = () => {
               </div>
               <div>
                 <h3 className="text-xl font-bold mb-1">Adresse</h3>
-                <p className="text-gray-600">63 Cité Isra Hann Marinas</p>
-                <p className="text-gray-600">Dakar, Sénégal</p>
+                <p className="text-gray-600">63 cité isra, Hann Bel air</p>
+                <p className="text-gray-600">Dakar – Sénégal</p>
               </div>
             </div>
             

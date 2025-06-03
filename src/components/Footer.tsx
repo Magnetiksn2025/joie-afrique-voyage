@@ -1,4 +1,3 @@
-
 import { Link } from 'react-router-dom';
 
 const Footer = () => {
@@ -46,10 +45,10 @@ const Footer = () => {
           <div>
             <h3 className="text-lg font-bold mb-4">Contact</h3>
             <ul className="space-y-2 text-gray-400">
-              <li>63 Cité Isra Hann Marinas, Dakar, Sénégal</li>
+              <li>63 cité isra, Hann Bel air</li>
+              <li>Dakar – Sénégal</li>
               <li>+221 78 308 35 35</li>
-              <li>+221 76 343 35 35</li>
-              <li>lrad.ccia101@gmail.com</li>
+              <li>contact@lrad-tours.com</li>
             </ul>
           </div>
         </div>

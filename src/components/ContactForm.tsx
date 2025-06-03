@@ -122,7 +122,7 @@ const ContactForm: React.FC = () => {
             className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary transition-colors ${
               errors.phone ? 'border-red-500' : 'border-gray-300 focus:border-primary'
             }`}
-            placeholder="+33 6 12 34 56 78"
+            placeholder="+221 78 308 35 35"
           />
           {errors.phone && (
             <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
@@ -218,11 +218,11 @@ const ContactForm: React.FC = () => {
         <div className="mt-2 space-y-1">
           <p className="text-sm">
             <Phone className="w-4 h-4 inline mr-2" />
-            +33 (0)1 XX XX XX XX
+            +221 78 308 35 35
           </p>
           <p className="text-sm">
             <Mail className="w-4 h-4 inline mr-2" />
-            contact@lradtourisme.com
+            contact@lrad-tours.com
           </p>
         </div>
       </div>
