@@ -1,24 +1,20 @@
-
 import Hero from '@/components/Hero';
 import FeaturedTours from '@/components/FeaturedTours';
 import FeaturesSection from '@/components/FeaturesSection';
 import DepartureCalendar from '@/components/DepartureCalendar';
 import Testimonials from '@/components/Testimonials';
 import ContactSection from '@/components/ContactSection';
-import NavBar from '@/components/NavBar';
-import Footer from '@/components/Footer';
 
 const Index = () => {
   return (
     <div className="min-h-screen">
-      <NavBar />
+      {/* NavBar et Footer sont maintenant gérés par le layout dans App.tsx */}
       <Hero />
       <FeaturedTours />
       <FeaturesSection />
       <DepartureCalendar />
       <Testimonials />
       <ContactSection />
-      <Footer />
     </div>
   );
 };
