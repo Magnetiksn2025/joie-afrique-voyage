@@ -57,6 +57,7 @@ const AppWithLayout = () => {
             <Route path="/galerie" element={<GalleryPlaceholder />} />
             <Route path="/devis" element={<QuotePlaceholder />} />
             <Route path="/mentions-legales" element={<LegalPlaceholder />} />
+            <Route path="/devis" element={<QuoteRequestPage />} />
             
             {/* Page 404 */}
             <Route path="*" element={<NotFound />} />
@@ -78,12 +79,7 @@ const GalleryPlaceholder = () => (
   </div>
 );
 
-const QuotePlaceholder = () => (
-  <div className="container mx-auto px-4 py-16 text-center">
-    <h1 className="text-4xl font-bold text-gray-900 mb-4">Devis personnalisé</h1>
-    <p className="text-gray-600">Page en cours de développement...</p>
-  </div>
-);
+import QuoteRequestPage from './pages/QuoteRequest';
 
 const LegalPlaceholder = () => (
   <div className="container mx-auto px-4 py-16 text-center">
