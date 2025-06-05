@@ -41,7 +41,7 @@ const Testimonials = () => {
     },
     {
       quote: "Les paysages du Cap Vert sont à couper le souffle, et grâce à LRAD Tourisme, nous avons pu explorer l'île en toute sérénité. Un voyage que je recommande!",
-      author: "Thomas D.",
+      author: "Serigne Babacar D.",
       destination: "Cap Vert",
       rating: 5
     },
