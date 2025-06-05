@@ -1,5 +1,5 @@
-
 import { Button } from '@/components/ui/button';
+import { Link } from 'react-router-dom';
 
 const Hero = () => {
   return (
@@ -22,12 +22,16 @@ const Hero = () => {
           <h1 className="text-4xl md:text-6xl font-bold mb-6">Découvrez l'Afrique de l'Ouest</h1>
           <p className="text-xl md:text-2xl mb-8">Des expériences authentiques au Sénégal, Cap Vert et Bénin</p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button className="bg-primary hover:bg-primary/90 text-white text-lg py-6 px-8">
-              Découvrir nos voyages
-            </Button>
-            <Button variant="outline" className="bg-white/10 backdrop-blur-md border-white text-white hover:bg-white/20 text-lg py-6 px-8">
-              Voir le calendrier
-            </Button>
+            <Link to="/destinations">
+              <Button className="bg-primary hover:bg-primary/90 text-white text-lg py-6 px-8 w-full sm:w-auto">
+                Découvrir nos voyages
+              </Button>
+            </Link>
+            <Link to="/calendar">
+              <Button variant="outline" className="bg-white/10 backdrop-blur-md border-white text-white hover:bg-white/20 text-lg py-6 px-8 w-full sm:w-auto">
+                Voir le calendrier
+              </Button>
+            </Link>
           </div>
           
           <div className="mt-12 pt-8 border-t border-white/30 flex flex-wrap justify-center gap-x-12 gap-y-6">

@@ -1,46 +1,13 @@
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { Mail, Phone, User, MessageSquare, MapPin, Send, CheckCircle, AlertCircle } from 'lucide-react';
+import { Mail, Phone, User, MessageSquare, MapPin, Send, CheckCircle, AlertCircle, Clock } from 'lucide-react';
+import { ContactFormData, contactFormSchema, FormStatus } from '@/types/contact';
+import { sendContactEmail } from '@/services/emailjs';
 import NavBar from '@/components/NavBar';
 import Footer from '@/components/Footer';
-import { z } from 'zod';
 
-// Schema de validation simple
-const contactFormSchema = z.object({
-  from_name: z
-    .string()
-    .min(2, 'Le nom doit contenir au moins 2 caractères')
-    .max(50, 'Le nom ne peut pas dépasser 50 caractères'),
-  
-  from_email: z
-    .string()
-    .email('Veuillez saisir un email valide')
-    .min(1, 'L\'email est requis'),
-  
-  phone: z
-    .string()
-    .optional(),
-  
-  subject: z
-    .string()
-    .min(5, 'Le sujet doit contenir au moins 5 caractères')
-    .max(100, 'Le sujet ne peut pas dépasser 100 caractères'),
-  
-  destination: z
-    .string()
-    .optional(),
-  
-  message: z
-    .string()
-    .min(10, 'Le message doit contenir au moins 10 caractères')
-    .max(1000, 'Le message ne peut pas dépasser 1000 caractères'),
-});
-
-type ContactFormData = z.infer<typeof contactFormSchema>;
-type FormStatus = 'idle' | 'loading' | 'success' | 'error';
-
-const Contact: React.FC = () => {
+const ContactPage: React.FC = () => {
   const [formStatus, setFormStatus] = useState<FormStatus>('idle');
   const [submitMessage, setSubmitMessage] = useState<string>('');
 
@@ -59,22 +26,20 @@ const Contact: React.FC = () => {
     setSubmitMessage('');
 
     try {
-      // Simulation d'envoi pour l'instant
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
+      await sendContactEmail(data);
       setFormStatus('success');
       setSubmitMessage('Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.');
-      reset();
+      reset(); // Réinitialise le formulaire
     } catch (error) {
       setFormStatus('error');
-      setSubmitMessage('Une erreur est survenue lors de l\'envoi. Veuillez réessayer.');
+      setSubmitMessage('Une erreur est survenue lors de l\'envoi. Veuillez réessayer ou nous contacter directement.');
       console.error('Erreur envoi formulaire:', error);
     }
   };
 
   const destinations = [
     'Sénégal',
-    'Cap-Vert', 
+    'Cap-Vert',
     'Bénin',
     'Autre destination'
   ];
@@ -83,144 +48,194 @@ const Contact: React.FC = () => {
     <div className="min-h-screen flex flex-col">
       <NavBar />
       
-      <div className="pt-24 pb-16 flex-1">
+      <div className="pt-24 pb-16 bg-gray-50">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            {/* En-tête du formulaire */}
-            <div className="text-center mb-12">
-              <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-6">
-                <Mail className="w-10 h-10 text-white" />
+          {/* En-tête */}
+          <div className="text-center mb-12">
+            <div className="w-20 h-20 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center mx-auto mb-6">
+              <Mail className="w-10 h-10 text-white" />
+            </div>
+            <h1 className="text-4xl md:text-5xl font-bold mb-4">Contactez-nous</h1>
+            <p className="text-gray-600 max-w-3xl mx-auto text-lg">
+              Vous avez des questions ou souhaitez planifier votre voyage ? Notre équipe d'experts est là pour vous accompagner dans la création de votre voyage sur mesure en Afrique de l'Ouest.
+            </p>
+          </div>
+
+          <div className="grid lg:grid-cols-3 gap-12 max-w-6xl mx-auto">
+            {/* Informations de contact */}
+            <div className="lg:col-span-1">
+              <div className="bg-white rounded-2xl shadow-lg p-8 h-fit">
+                <h2 className="text-2xl font-bold mb-6">Nos coordonnées</h2>
+                
+                <div className="space-y-6">
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Phone className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Téléphone</h3>
+                      <p className="text-gray-600">+221 78 308 35 35</p>
+                      <p className="text-gray-600">+221 76 343 35 35</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Mail className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Email</h3>
+                      <p className="text-gray-600">lrad.ccia101@gmail.com</p>
+                      <p className="text-gray-600">contact@lradtourisme.com</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <MapPin className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Adresse</h3>
+                      <p className="text-gray-600">63 Cité Isra Hann Marinas</p>
+                      <p className="text-gray-600">Dakar, Sénégal</p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start space-x-4">
+                    <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                      <Clock className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-semibold mb-1">Horaires</h3>
+                      <p className="text-gray-600">Lun - Ven : 9h - 18h</p>
+                      <p className="text-gray-600">Sam : 9h - 13h</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mt-8 p-4 bg-primary/5 rounded-lg">
+                  <h4 className="font-semibold text-primary mb-2">Réponse garantie</h4>
+                  <p className="text-sm text-gray-600">
+                    Nous nous engageons à répondre à votre demande dans les 24 heures ouvrées.
+                  </p>
+                </div>
               </div>
-              <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
-                Contactez-nous
-              </h1>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Partagez-nous vos envies de voyage et nous vous accompagnerons dans la création de votre voyage sur mesure
-              </p>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-              {/* Messages de statut */}
-              {formStatus === 'success' && (
-                <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
-                      <CheckCircle className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-green-800">Message envoyé !</h3>
-                      <p className="text-green-700">{submitMessage}</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {formStatus === 'error' && (
-                <div className="p-6 bg-gradient-to-r from-red-50 to-pink-50 border-b border-red-100">
-                  <div className="flex items-center space-x-4">
-                    <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
-                      <AlertCircle className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-semibold text-red-800">Erreur d'envoi</h3>
-                      <p className="text-red-700">{submitMessage}</p>
+            {/* Formulaire de contact */}
+            <div className="lg:col-span-2">
+              <div className="bg-white rounded-2xl shadow-lg overflow-hidden">
+                {/* Messages de statut */}
+                {formStatus === 'success' && (
+                  <div className="p-6 bg-gradient-to-r from-green-50 to-emerald-50 border-b border-green-100">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
+                        <CheckCircle className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-green-800">Message envoyé !</h3>
+                        <p className="text-green-700">{submitMessage}</p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              )}
+                )}
 
-              <form onSubmit={handleSubmit(onSubmit)} className="p-8 md:p-12">
-                <div className="grid md:grid-cols-2 gap-8">
-                  {/* Colonne gauche */}
-                  <div className="space-y-6">
+                {formStatus === 'error' && (
+                  <div className="p-6 bg-gradient-to-r from-red-50 to-pink-50 border-b border-red-100">
+                    <div className="flex items-center space-x-4">
+                      <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
+                        <AlertCircle className="w-6 h-6 text-white" />
+                      </div>
+                      <div>
+                        <h3 className="font-semibold text-red-800">Erreur d'envoi</h3>
+                        <p className="text-red-700">{submitMessage}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                <form onSubmit={handleSubmit(onSubmit)} className="p-8">
+                  <h2 className="text-2xl font-bold mb-6">Envoyez-nous votre demande</h2>
+                  
+                  <div className="grid md:grid-cols-2 gap-6">
                     {/* Nom */}
                     <div className="group">
-                      <label htmlFor="from_name" className="block text-sm font-semibold text-gray-800 mb-3">
+                      <label htmlFor="from_name" className="block text-sm font-semibold text-gray-800 mb-2">
                         <User className="w-4 h-4 inline mr-2 text-primary" />
                         Nom complet *
                       </label>
-                      <div className="relative">
-                        <input
-                          {...register('from_name')}
-                          type="text"
-                          id="from_name"
-                          className={`w-full px-4 py-4 border-2 rounded-xl bg-gray-50 focus:bg-white focus:outline-none transition-all duration-300 ${
-                            errors.from_name 
-                              ? 'border-red-400 focus:border-red-500' 
-                              : 'border-gray-200 focus:border-primary group-hover:border-gray-300'
-                          }`}
-                          placeholder="Votre nom complet"
-                        />
-                        {errors.from_name && (
-                          <div className="absolute -bottom-6 left-0">
-                            <p className="text-red-500 text-sm font-medium">{errors.from_name.message}</p>
-                          </div>
-                        )}
-                      </div>
+                      <input
+                        {...register('from_name')}
+                        type="text"
+                        id="from_name"
+                        className={`w-full px-4 py-3 border-2 rounded-lg bg-gray-50 focus:bg-white focus:outline-none transition-all duration-300 ${
+                          errors.from_name 
+                            ? 'border-red-400 focus:border-red-500' 
+                            : 'border-gray-200 focus:border-primary'
+                        }`}
+                        placeholder="Votre nom complet"
+                      />
+                      {errors.from_name && (
+                        <p className="text-red-500 text-sm mt-1">{errors.from_name.message}</p>
+                      )}
                     </div>
 
                     {/* Email */}
                     <div className="group">
-                      <label htmlFor="from_email" className="block text-sm font-semibold text-gray-800 mb-3">
+                      <label htmlFor="from_email" className="block text-sm font-semibold text-gray-800 mb-2">
                         <Mail className="w-4 h-4 inline mr-2 text-primary" />
                         Adresse email *
                       </label>
-                      <div className="relative">
-                        <input
-                          {...register('from_email')}
-                          type="email"
-                          id="from_email"
-                          className={`w-full px-4 py-4 border-2 rounded-xl bg-gray-50 focus:bg-white focus:outline-none transition-all duration-300 ${
-                            errors.from_email 
-                              ? 'border-red-400 focus:border-red-500' 
-                              : 'border-gray-200 focus:border-primary group-hover:border-gray-300'
-                          }`}
-                          placeholder="votre.email@exemple.com"
-                        />
-                        {errors.from_email && (
-                          <div className="absolute -bottom-6 left-0">
-                            <p className="text-red-500 text-sm font-medium">{errors.from_email.message}</p>
-                          </div>
-                        )}
-                      </div>
+                      <input
+                        {...register('from_email')}
+                        type="email"
+                        id="from_email"
+                        className={`w-full px-4 py-3 border-2 rounded-lg bg-gray-50 focus:bg-white focus:outline-none transition-all duration-300 ${
+                          errors.from_email 
+                            ? 'border-red-400 focus:border-red-500' 
+                            : 'border-gray-200 focus:border-primary'
+                        }`}
+                        placeholder="votre.email@exemple.com"
+                      />
+                      {errors.from_email && (
+                        <p className="text-red-500 text-sm mt-1">{errors.from_email.message}</p>
+                      )}
                     </div>
+                  </div>
 
+                  <div className="grid md:grid-cols-2 gap-6 mt-6">
                     {/* Téléphone */}
                     <div className="group">
-                      <label htmlFor="phone" className="block text-sm font-semibold text-gray-800 mb-3">
+                      <label htmlFor="phone" className="block text-sm font-semibold text-gray-800 mb-2">
                         <Phone className="w-4 h-4 inline mr-2 text-primary" />
                         Téléphone
                       </label>
-                      <div className="relative">
-                        <input
-                          {...register('phone')}
-                          type="tel"
-                          id="phone"
-                          className={`w-full px-4 py-4 border-2 rounded-xl bg-gray-50 focus:bg-white focus:outline-none transition-all duration-300 ${
-                            errors.phone 
-                              ? 'border-red-400 focus:border-red-500' 
-                              : 'border-gray-200 focus:border-primary group-hover:border-gray-300'
-                          }`}
-                          placeholder="+33 6 12 34 56 78"
-                        />
-                        {errors.phone && (
-                          <div className="absolute -bottom-6 left-0">
-                            <p className="text-red-500 text-sm font-medium">{errors.phone.message}</p>
-                          </div>
-                        )}
-                      </div>
+                      <input
+                        {...register('phone')}
+                        type="tel"
+                        id="phone"
+                        className={`w-full px-4 py-3 border-2 rounded-lg bg-gray-50 focus:bg-white focus:outline-none transition-all duration-300 ${
+                          errors.phone 
+                            ? 'border-red-400 focus:border-red-500' 
+                            : 'border-gray-200 focus:border-primary'
+                        }`}
+                        placeholder="+33 6 12 34 56 78"
+                      />
+                      {errors.phone && (
+                        <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
+                      )}
                     </div>
 
                     {/* Destination */}
                     <div className="group">
-                      <label htmlFor="destination" className="block text-sm font-semibold text-gray-800 mb-3">
+                      <label htmlFor="destination" className="block text-sm font-semibold text-gray-800 mb-2">
                         <MapPin className="w-4 h-4 inline mr-2 text-primary" />
                         Destination souhaitée
                       </label>
                       <select
                         {...register('destination')}
                         id="destination"
-                        className="w-full px-4 py-4 border-2 border-gray-200 rounded-xl bg-gray-50 focus:bg-white focus:outline-none focus:border-primary transition-all duration-300 group-hover:border-gray-300"
+                        className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg bg-gray-50 focus:bg-white focus:outline-none focus:border-primary transition-all duration-300"
                       >
                         <option value="">Choisissez votre destination</option>
                         {destinations.map((dest) => (
@@ -230,125 +245,116 @@ const Contact: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Colonne droite */}
-                  <div className="space-y-6">
-                    {/* Sujet */}
-                    <div className="group">
-                      <label htmlFor="subject" className="block text-sm font-semibold text-gray-800 mb-3">
-                        Sujet de votre demande *
-                      </label>
-                      <div className="relative">
-                        <input
-                          {...register('subject')}
-                          type="text"
-                          id="subject"
-                          className={`w-full px-4 py-4 border-2 rounded-xl bg-gray-50 focus:bg-white focus:outline-none transition-all duration-300 ${
-                            errors.subject 
-                              ? 'border-red-400 focus:border-red-500' 
-                              : 'border-gray-200 focus:border-primary group-hover:border-gray-300'
-                          }`}
-                          placeholder="Ex: Voyage de groupe au Sénégal"
-                        />
-                        {errors.subject && (
-                          <div className="absolute -bottom-6 left-0">
-                            <p className="text-red-500 text-sm font-medium">{errors.subject.message}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Message */}
-                    <div className="group">
-                      <label htmlFor="message" className="block text-sm font-semibold text-gray-800 mb-3">
-                        <MessageSquare className="w-4 h-4 inline mr-2 text-primary" />
-                        Votre message *
-                      </label>
-                      <div className="relative">
-                        <textarea
-                          {...register('message')}
-                          id="message"
-                          rows={8}
-                          className={`w-full px-4 py-4 border-2 rounded-xl bg-gray-50 focus:bg-white focus:outline-none transition-all duration-300 resize-none ${
-                            errors.message 
-                              ? 'border-red-400 focus:border-red-500' 
-                              : 'border-gray-200 focus:border-primary group-hover:border-gray-300'
-                          }`}
-                          placeholder="Décrivez-nous votre projet de voyage : dates souhaitées, type d'hébergement, activités préférées, budget approximatif..."
-                        />
-                        {errors.message && (
-                          <div className="absolute -bottom-6 left-0">
-                            <p className="text-red-500 text-sm font-medium">{errors.message.message}</p>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Bouton d'envoi */}
-                <div className="mt-12 text-center">
-                  <button
-                    type="submit"
-                    disabled={!isValid || formStatus === 'loading'}
-                    className={`group relative px-12 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform ${
-                      isValid && formStatus !== 'loading'
-                        ? 'bg-gradient-to-r from-primary to-secondary text-white hover:scale-105 hover:shadow-2xl shadow-lg'
-                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
-                  >
-                    <div className="flex items-center justify-center space-x-3">
-                      {formStatus === 'loading' ? (
-                        <>
-                          <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                          <span>Envoi en cours...</span>
-                        </>
-                      ) : (
-                        <>
-                          <Send className="w-5 h-5 transition-transform group-hover:translate-x-1" />
-                          <span>Envoyer ma demande</span>
-                        </>
-                      )}
-                    </div>
-                    
-                    {/* Effet de brillance au survol */}
-                    {isValid && formStatus !== 'loading' && (
-                      <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transition-opacity duration-300 rounded-xl transform -skew-x-12" />
+                  {/* Sujet */}
+                  <div className="group mt-6">
+                    <label htmlFor="subject" className="block text-sm font-semibold text-gray-800 mb-2">
+                      Sujet de votre demande *
+                    </label>
+                    <input
+                      {...register('subject')}
+                      type="text"
+                      id="subject"
+                      className={`w-full px-4 py-3 border-2 rounded-lg bg-gray-50 focus:bg-white focus:outline-none transition-all duration-300 ${
+                        errors.subject 
+                          ? 'border-red-400 focus:border-red-500' 
+                          : 'border-gray-200 focus:border-primary'
+                      }`}
+                      placeholder="Ex: Voyage de groupe au Sénégal"
+                    />
+                    {errors.subject && (
+                      <p className="text-red-500 text-sm mt-1">{errors.subject.message}</p>
                     )}
-                  </button>
-                  
-                  <p className="text-sm text-gray-500 mt-4">
-                    * Champs obligatoires - Réponse garantie sous 24h
-                  </p>
-                </div>
-              </form>
+                  </div>
 
-              {/* Footer du formulaire */}
-              <div className="bg-gradient-to-r from-gray-50 to-gray-100 px-8 md:px-12 py-8">
-                <div className="grid md:grid-cols-2 gap-8">
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-3">Contact direct</h4>
-                    <div className="space-y-2">
-                      <p className="text-gray-600 flex items-center">
-                        <Phone className="w-4 h-4 mr-2 text-primary" />
-                        +221 78 308 35 35
-                      </p>
-                      <p className="text-gray-600 flex items-center">
-                        <Mail className="w-4 h-4 mr-2 text-primary" />
-                        lrad.ccia101@gmail.com
-                      </p>
-                    </div>
+                  {/* Message */}
+                  <div className="group mt-6">
+                    <label htmlFor="message" className="block text-sm font-semibold text-gray-800 mb-2">
+                      <MessageSquare className="w-4 h-4 inline mr-2 text-primary" />
+                      Votre message *
+                    </label>
+                    <textarea
+                      {...register('message')}
+                      id="message"
+                      rows={6}
+                      className={`w-full px-4 py-3 border-2 rounded-lg bg-gray-50 focus:bg-white focus:outline-none transition-all duration-300 resize-none ${
+                        errors.message 
+                          ? 'border-red-400 focus:border-red-500' 
+                          : 'border-gray-200 focus:border-primary'
+                      }`}
+                      placeholder="Décrivez-nous votre projet de voyage : dates souhaitées, type d'hébergement, activités préférées, budget approximatif..."
+                    />
+                    {errors.message && (
+                      <p className="text-red-500 text-sm mt-1">{errors.message.message}</p>
+                    )}
                   </div>
-                  
-                  <div>
-                    <h4 className="font-semibold text-gray-800 mb-3">Pourquoi nous choisir ?</h4>
-                    <ul className="text-sm text-gray-600 space-y-1">
-                      <li>• Expertise locale de l'Afrique de l'Ouest</li>
-                      <li>• Voyages 100% sur mesure</li>
-                      <li>• Accompagnement personnalisé</li>
-                      <li>• Guides francophones expérimentés</li>
-                    </ul>
+
+                  {/* Bouton d'envoi */}
+                  <div className="mt-8">
+                    <button
+                      type="submit"
+                      disabled={!isValid || formStatus === 'loading'}
+                      className={`w-full px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 transform ${
+                        isValid && formStatus !== 'loading'
+                          ? 'bg-gradient-to-r from-primary to-secondary text-white hover:scale-105 hover:shadow-lg shadow-md'
+                          : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      }`}
+                    >
+                      <div className="flex items-center justify-center space-x-3">
+                        {formStatus === 'loading' ? (
+                          <>
+                            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            <span>Envoi en cours...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Send className="w-5 h-5 transition-transform group-hover:translate-x-1" />
+                            <span>Envoyer ma demande</span>
+                          </>
+                        )}
+                      </div>
+                    </button>
+                    
+                    <p className="text-sm text-gray-500 mt-4 text-center">
+                      * Champs obligatoires - Réponse garantie sous 24h
+                    </p>
                   </div>
+                </form>
+              </div>
+            </div>
+          </div>
+
+          {/* Section supplémentaire */}
+          <div className="mt-16 bg-white rounded-2xl shadow-lg p-8">
+            <div className="text-center mb-8">
+              <h2 className="text-3xl font-bold mb-4">Pourquoi choisir LRAD Tourisme ?</h2>
+              <p className="text-gray-600 max-w-2xl mx-auto">
+                Notre expertise et notre passion pour l'Afrique de l'Ouest font de nous le partenaire idéal pour votre voyage.
+              </p>
+            </div>
+            
+            <div className="grid md:grid-cols-3 gap-8">
+              <div className="text-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <User className="w-8 h-8 text-primary" />
                 </div>
+                <h3 className="font-semibold mb-2">Guides experts locaux</h3>
+                <p className="text-gray-600 text-sm">Des guides passionnés qui connaissent parfaitement leur région</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-secondary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <CheckCircle className="w-8 h-8 text-secondary" />
+                </div>
+                <h3 className="font-semibold mb-2">Voyages tout compris</h3>
+                <p className="text-gray-600 text-sm">Hébergement, repas, transport et activités inclus</p>
+              </div>
+              
+              <div className="text-center">
+                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Phone className="w-8 h-8 text-primary" />
+                </div>
+                <h3 className="font-semibold mb-2">Support 24/7</h3>
+                <p className="text-gray-600 text-sm">Une assistance disponible pendant tout votre voyage</p>
               </div>
             </div>
           </div>
@@ -360,4 +366,4 @@ const Contact: React.FC = () => {
   );
 };
 
-export default Contact;
+export default ContactPage;
