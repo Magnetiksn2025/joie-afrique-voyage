@@ -1,4 +1,3 @@
-
 import { Card, CardContent } from "@/components/ui/card";
 
 type TestimonialProps = {
@@ -57,6 +56,29 @@ const Testimonials = () => {
   return (
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4">
+        {/* Vidéo YouTube en introduction */}
+        <div className="text-center mb-16">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">Découvrez l'Afrique de l'Ouest</h2>
+          <p className="text-gray-600 max-w-2xl mx-auto mb-8">
+            Plongez dans l'aventure avec cette vidéo qui capture l'essence de nos voyages exceptionnels.
+          </p>
+          
+          <div className="max-w-4xl mx-auto">
+            <div className="relative w-full" style={{ paddingBottom: '56.25%' /* 16:9 aspect ratio */ }}>
+              <iframe 
+                className="absolute top-0 left-0 w-full h-full rounded-lg shadow-lg"
+                src="https://www.youtube.com/embed/SwE7bOGVLI8?si=IrQeKHin0CBCc-TB" 
+                title="LRAD Tourisme - Découverte de l'Afrique de l'Ouest" 
+                frameBorder="0" 
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                referrerPolicy="strict-origin-when-cross-origin" 
+                allowFullScreen
+              />
+            </div>
+          </div>
+        </div>
+
+        {/* Section témoignages */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">Ce que nos clients disent</h2>
           <p className="text-gray-600 max-w-2xl mx-auto">
@@ -79,5 +101,3 @@ const Testimonials = () => {
     </section>
   );
 };
-
-export default Testimonials;

@@ -15,19 +15,19 @@ type DepartureType = {
 
 const departures: Record<string, DepartureType[]> = {
   "Senegal": [
-    { id: 1, destination: "Sénégal", departureDate: "2025-01-15", returnDate: "2025-01-22", availableSeats: 12, price: 865 },
-    { id: 2, destination: "Sénégal", departureDate: "2025-02-12", returnDate: "2025-02-19", availableSeats: 8, price: 865 },
-    { id: 3, destination: "Sénégal", departureDate: "2025-03-19", returnDate: "2025-03-26", availableSeats: 15, price: 865 },
+    { id: 1, destination: "Sénégal", departureDate: "2025-06-15", returnDate: "2025-06-22", availableSeats: 12, price: 865 },
+    { id: 2, destination: "Sénégal", departureDate: "2025-07-12", returnDate: "2025-07-19", availableSeats: 8, price: 865 },
+    { id: 3, destination: "Sénégal", departureDate: "2025-08-19", returnDate: "2025-08-26", availableSeats: 15, price: 865 },
   ],
   "CapVert": [
-    { id: 4, destination: "Cap Vert", departureDate: "2025-01-30", returnDate: "2025-02-04", availableSeats: 10, price: 785 },
-    { id: 5, destination: "Cap Vert", departureDate: "2025-02-27", returnDate: "2025-03-04", availableSeats: 6, price: 785 },
-    { id: 6, destination: "Cap Vert", departureDate: "2025-05-30", returnDate: "2025-06-03", availableSeats: 14, price: 785 },
+    { id: 4, destination: "Cap Vert", departureDate: "2025-06-30", returnDate: "2025-07-04", availableSeats: 10, price: 785 },
+    { id: 5, destination: "Cap Vert", departureDate: "2025-07-27", returnDate: "2025-08-04", availableSeats: 6, price: 785 },
+    { id: 6, destination: "Cap Vert", departureDate: "2025-08-30", returnDate: "2025-09-03", availableSeats: 14, price: 785 },
   ],
   "Benin": [
-    { id: 7, destination: "Bénin", departureDate: "2025-04-10", returnDate: "2025-04-16", availableSeats: 12, price: 925 },
-    { id: 8, destination: "Bénin", departureDate: "2025-07-17", returnDate: "2025-07-23", availableSeats: 8, price: 925 },
-    { id: 9, destination: "Bénin", departureDate: "2025-09-04", returnDate: "2025-09-10", availableSeats: 15, price: 925 },
+    { id: 7, destination: "Bénin", departureDate: "2025-07-10", returnDate: "2025-07-16", availableSeats: 12, price: 925 },
+    { id: 8, destination: "Bénin", departureDate: "2025-08-17", returnDate: "2025-08-23", availableSeats: 8, price: 925 },
+    { id: 9, destination: "Bénin", departureDate: "2025-09-14", returnDate: "2025-09-20", availableSeats: 15, price: 925 },
   ]
 };
 
@@ -144,15 +144,21 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
             <p className="font-medium">{formatDate(departure.returnDate)}</p>
           </div>
           <div className="p-4 text-center">
-            <p className="text-sm text-gray-500">Places disponibles</p>
-            <p className={`font-bold ${departure.availableSeats <= 5 ? 'text-primary' : ''}`}>
-              {departure.availableSeats}
-            </p>
+            <p className="text-sm text-gray-500">Disponibilité</p>
+            {departure.availableSeats <= 5 ? (
+              <p className="font-bold text-orange-500">
+                Plus que {departure.availableSeats} places !
+              </p>
+            ) : (
+              <p className="font-bold text-green-600">
+                Places disponibles
+              </p>
+            )}
           </div>
           <div className="p-4 flex flex-col items-center justify-center">
             <p className="text-sm text-gray-500">À partir de</p>
             <p className="font-bold text-lg mb-2">{departure.price}€</p>
-            <Link to={`/calendar?destination=${getDestinationParam(departure.destination)}`}>
+            <Link to={`/calendar?destination=${getDestinationParam(departure.destination)}&fromHome=true`}>
               <Button size="sm" className="bg-primary hover:bg-primary/90 text-white">
                 Réserver
               </Button>
