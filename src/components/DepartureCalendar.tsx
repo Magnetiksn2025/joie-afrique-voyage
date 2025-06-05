@@ -4,8 +4,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from 'react-router-dom';
 import { Mail, MessageCircle, CheckCircle, XCircle } from 'lucide-react';
-import { sendContactEmail } from '@/services/emailjs';
-import { ContactFormData } from '@/types/contact';
+
+// Import conditionnel pour éviter les erreurs si les services ne sont pas disponibles
+let sendContactEmail: any;
+let ContactFormData: any;
+
+try {
+  const emailService = require('@/services/emailjs');
+  sendContactEmail = emailService.sendContactEmail;
+  const contactTypes = require('@/types/contact');
+  ContactFormData = contactTypes.ContactFormData;
+} catch (error) {
+  // Services optionnels - fallback graceful
+  console.log('Services de contact non disponibles:', error);
+}
 
 type DepartureType = {
   id: number;
@@ -72,11 +84,16 @@ const BookingFormHome = ({ departure, onClose }: { departure: DepartureType; onC
   const totalPrice = departure.price * formData.numberOfPeople;
 
   const handleEmailBooking = async () => {
+    if (!sendContactEmail) {
+      alert('Service d\'email non disponible. Veuillez utiliser WhatsApp.');
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus('idle');
 
     try {
-      const emailData: ContactFormData = {
+      const emailData = {
         from_name: `${formData.firstName} ${formData.lastName}`,
         from_email: formData.email,
         phone: formData.phone,
@@ -309,19 +326,6 @@ Merci !`;
 const DepartureCalendar = () => {
   const [selectedTab, setSelectedTab] = useState<string>("Senegal");
 
-  const getDestinationParam = (dest: string) => {
-    switch(dest) {
-      case 'Senegal':
-        return 'Senegal';
-      case 'CapVert':
-        return 'CapVert';
-      case 'Benin':
-        return 'Benin';
-      default:
-        return dest;
-    }
-  };
-
   return (
     <section className="py-16">
       <div className="container mx-auto px-4">
@@ -382,19 +386,6 @@ const DepartureCalendar = () => {
 
 const DepartureCard = ({ departure }: { departure: DepartureType }) => {
   const [showBookingForm, setShowBookingForm] = useState(false);
-  
-  const getDestinationParam = (destination: string) => {
-    switch(destination) {
-      case 'Sénégal':
-        return 'Senegal';
-      case 'Cap Vert':
-        return 'CapVert';
-      case 'Bénin':
-        return 'Benin';
-      default:
-        return destination;
-    }
-  };
 
   return (
     <>
