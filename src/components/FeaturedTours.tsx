@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardFooter, CardHeader } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -27,6 +26,19 @@ const TourCard = ({
   featured = false,
   destination
 }: TourCardProps) => {
+  const getDestinationParam = (dest: string) => {
+    switch(dest.toLowerCase()) {
+      case 'senegal':
+        return 'Senegal';
+      case 'capvert':
+        return 'CapVert';
+      case 'benin':
+        return 'Benin';
+      default:
+        return dest;
+    }
+  };
+
   return (
     <Card className={`overflow-hidden tour-card ${featured ? 'border-secondary border-2' : ''}`}>
       <div className="relative h-48 overflow-hidden">
@@ -71,7 +83,7 @@ const TourCard = ({
             </div>
             <div className="text-sm text-gray-500">{priceCouple}€ pour un couple</div>
           </div>
-          <Link to={`/destinations/${destination.toLowerCase()}`}>
+          <Link to={`/calendar?destination=${getDestinationParam(destination)}`}>
             <Button className="bg-primary hover:bg-primary/90">
               Réserver
             </Button>
@@ -147,11 +159,18 @@ const FeaturedTours = () => {
         </div>
         
         <div className="mt-12 text-center">
-          <Link to="/destinations">
-            <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
-              Voir toutes nos destinations
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link to="/destinations">
+              <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-white">
+                Voir toutes nos destinations
+              </Button>
+            </Link>
+            <Link to="/contact">
+              <Button className="bg-secondary hover:bg-secondary/90 text-white">
+                Demander un devis personnalisé
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </section>

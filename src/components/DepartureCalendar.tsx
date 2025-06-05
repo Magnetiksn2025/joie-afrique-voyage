@@ -1,8 +1,8 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Link } from 'react-router-dom';
 
 type DepartureType = {
   id: number;
@@ -42,6 +42,19 @@ const formatDate = (dateString: string): string => {
 
 const DepartureCalendar = () => {
   const [selectedTab, setSelectedTab] = useState<string>("Senegal");
+
+  const getDestinationParam = (dest: string) => {
+    switch(dest) {
+      case 'Senegal':
+        return 'Senegal';
+      case 'CapVert':
+        return 'CapVert';
+      case 'Benin':
+        return 'Benin';
+      default:
+        return dest;
+    }
+  };
 
   return (
     <section className="py-16">
@@ -90,9 +103,11 @@ const DepartureCalendar = () => {
         </div>
         
         <div className="text-center mt-10">
-          <Button className="bg-secondary hover:bg-secondary/90 text-white">
-            Voir le calendrier complet
-          </Button>
+          <Link to="/calendar">
+            <Button className="bg-secondary hover:bg-secondary/90 text-white">
+              Voir le calendrier complet
+            </Button>
+          </Link>
         </div>
       </div>
     </section>
@@ -100,6 +115,19 @@ const DepartureCalendar = () => {
 };
 
 const DepartureCard = ({ departure }: { departure: DepartureType }) => {
+  const getDestinationParam = (destination: string) => {
+    switch(destination) {
+      case 'Sénégal':
+        return 'Senegal';
+      case 'Cap Vert':
+        return 'CapVert';
+      case 'Bénin':
+        return 'Benin';
+      default:
+        return destination;
+    }
+  };
+
   return (
     <Card className="overflow-hidden">
       <CardHeader className="bg-gray-50 py-3">
@@ -124,9 +152,11 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
           <div className="p-4 flex flex-col items-center justify-center">
             <p className="text-sm text-gray-500">À partir de</p>
             <p className="font-bold text-lg mb-2">{departure.price}€</p>
-            <Button size="sm" className="bg-primary hover:bg-primary/90 text-white">
-              Réserver
-            </Button>
+            <Link to={`/calendar?destination=${getDestinationParam(departure.destination)}`}>
+              <Button size="sm" className="bg-primary hover:bg-primary/90 text-white">
+                Réserver
+              </Button>
+            </Link>
           </div>
         </div>
       </CardContent>
