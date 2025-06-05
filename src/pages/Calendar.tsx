@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { Clock, Users, CheckCircle, XCircle, AlertCircle, Phone, MessageCircle, Plus, Minus, Info, Mail } from 'lucide-react';
+import { Clock, Users, CheckCircle, XCircle, AlertCircle, Phone, MessageCircle, Plus, Minus, Info, Mail, ChevronDown, ChevronUp } from 'lucide-react';
 import { sendContactEmail } from '@/services/emailjs';
 import { ContactFormData } from '@/types/contact';
 import NavBar from '@/components/NavBar';
@@ -495,8 +495,10 @@ Merci !`;
   );
 };
 
-// Composant de sélection d'options
+// Composant de sélection d'options avec fonctionnalité dépliable
 const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { destination: string; selectedOptions: any[]; onOptionsChange: (options: any[]) => void }) => {
+  const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
+
   if (destination !== "Sénégal") return null;
 
   const toggleOption = (option: any) => {
@@ -508,14 +510,23 @@ const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { de
     }
   };
 
+  const toggleExpanded = (optionId: string) => {
+    setExpandedOptions(prev => ({
+      ...prev,
+      [optionId]: !prev[optionId]
+    }));
+  };
+
   return (
     <div className="mt-6 p-6 bg-gray-50 rounded-lg">
       <h3 className="text-xl font-bold mb-4">Options supplémentaires</h3>
       <div className="space-y-4">
         {senegalOptions.map(option => {
           const isSelected = selectedOptions.some(opt => opt.id === option.id);
+          const isExpanded = expandedOptions[option.id];
+          
           return (
-            <Card key={option.id} className={`cursor-pointer transition-all ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}>
+            <Card key={option.id} className={`transition-all ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}>
               <CardContent className="p-4">
                 <div className="flex items-start justify-between">
                   <div className="flex-1">
@@ -530,33 +541,43 @@ const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { de
                       </Button>
                       <h4 className="font-semibold">{option.name}</h4>
                       <Badge variant="outline">{option.duration}</Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleExpanded(option.id)}
+                        className="p-1 text-gray-500 hover:text-gray-700"
+                      >
+                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </Button>
                     </div>
                     
-                    <div className="ml-8">
-                      <div className="mb-3">
-                        <h5 className="font-medium text-sm mb-1">Inclus :</h5>
-                        <ul className="text-sm text-gray-600 space-y-1">
-                          {option.includes.map((item, idx) => (
-                            <li key={idx} className="flex items-center">
-                              <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
+                    {isExpanded && (
+                      <div className="ml-8 animate-fade-in">
+                        <div className="mb-3">
+                          <h5 className="font-medium text-sm mb-1">Inclus :</h5>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            {option.includes.map((item, idx) => (
+                              <li key={idx} className="flex items-center">
+                                <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h5 className="font-medium text-sm mb-1">Activités :</h5>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            {option.activities.map((activity, idx) => (
+                              <li key={idx} className="flex items-center">
+                                <span className="w-1.5 h-1.5 bg-secondary rounded-full mr-2"></span>
+                                {activity}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       </div>
-                      
-                      <div>
-                        <h5 className="font-medium text-sm mb-1">Activités :</h5>
-                        <ul className="text-sm text-gray-600 space-y-1">
-                          {option.activities.map((activity, idx) => (
-                            <li key={idx} className="flex items-center">
-                              <span className="w-1.5 h-1.5 bg-secondary rounded-full mr-2"></span>
-                              {activity}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </div>
+                    )}
                   </div>
                   
                   <div className="text-right ml-4">
@@ -613,10 +634,26 @@ const CalendarPage = () => {
       });
     }
     
-    // Sort by departure date
-    return [...filtered].sort((a, b) => 
+    // Filtrer les départs passés et garder seulement les 3 prochains départs disponibles
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    filtered = filtered.filter(dep => {
+      const departureDate = new Date(dep.departureDate);
+      return departureDate >= today && (dep.totalSeats - dep.bookedSeats) > 0;
+    });
+    
+    // Sort by departure date et garder seulement les 3 plus proches si on vient de la page d'accueil
+    const fromHomePage = searchParams.get('fromHome');
+    const sortedFiltered = [...filtered].sort((a, b) => 
       new Date(a.departureDate).getTime() - new Date(b.departureDate).getTime()
     );
+    
+    if (fromHomePage === 'true' && selectedTab !== "Tous") {
+      return sortedFiltered.slice(0, 3);
+    }
+    
+    return sortedFiltered;
   };
   
   const filteredDepartures = getFilteredDepartures();
@@ -859,15 +896,15 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
               </p>
             </div>
             <div className="p-4 md:col-span-2">
-              <p className="text-sm text-gray-500 mb-1">Places restantes</p>
+              <p className="text-sm text-gray-500 mb-1">Disponibilité</p>
               {isPast ? (
                 <p className="font-bold text-gray-500">Voyage terminé</p>
               ) : isSoldOut ? (
                 <p className="font-bold text-red-500">Aucune place disponible</p>
-              ) : (
+              ) : isLowAvailability ? (
                 <>
-                  <p className={`font-bold ${isLowAvailability ? 'text-orange-500' : 'text-green-600'}`}>
-                    {remainingSeats} places restantes
+                  <p className="font-bold text-orange-500">
+                    Plus que {remainingSeats} places !
                   </p>
                   <div className="mt-2">
                     <Progress 
@@ -875,11 +912,24 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
                       className="h-2"
                     />
                   </div>
-                  {isLowAvailability && (
-                    <p className="text-orange-500 text-xs font-medium mt-1">
-                      Plus que {remainingSeats} places !
-                    </p>
-                  )}
+                  <p className="text-orange-500 text-xs font-medium mt-1">
+                    Dernières places disponibles
+                  </p>
+                </>
+              ) : (
+                <>
+                  <p className="font-bold text-green-600">
+                    Places disponibles
+                  </p>
+                  <div className="mt-2">
+                    <Progress 
+                      value={availabilityPercentage} 
+                      className="h-2"
+                    />
+                  </div>
+                  <p className="text-green-600 text-xs font-medium mt-1">
+                    Voyage confirmé
+                  </p>
                 </>
               )}
             </div>

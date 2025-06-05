@@ -83,7 +83,7 @@ const TourCard = ({
             </div>
             <div className="text-sm text-gray-500">{priceCouple}€ pour un couple</div>
           </div>
-          <Link to={`/calendar?destination=${getDestinationParam(destination)}`}>
+          <Link to={`/calendar?destination=${getDestinationParam(destination)}&fromHome=true`}>
             <Button className="bg-primary hover:bg-primary/90">
               Réserver
             </Button>
