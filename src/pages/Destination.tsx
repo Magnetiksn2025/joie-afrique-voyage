@@ -171,7 +171,7 @@ const DestinationPage = () => {
                   className="border-primary text-primary hover:bg-primary/10"
                   asChild
                 >
-                  <a href="/contact">
+                  <a href="/devis">
                     Demander un devis
                   </a>
                 </Button>

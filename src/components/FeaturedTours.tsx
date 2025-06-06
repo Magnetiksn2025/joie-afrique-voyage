@@ -165,7 +165,7 @@ const FeaturedTours = () => {
                 Voir toutes nos destinations
               </Button>
             </Link>
-            <Link to="/contact">
+            <Link to="/devis">
               <Button className="bg-secondary hover:bg-secondary/90 text-white">
                 Demander un devis personnalisé
               </Button>
