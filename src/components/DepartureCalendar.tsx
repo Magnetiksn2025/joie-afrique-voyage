@@ -4,20 +4,78 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from 'react-router-dom';
 import { Mail, MessageCircle, CheckCircle, XCircle } from 'lucide-react';
+import { ChevronDown, ChevronUp, Plus, Minus } from 'lucide-react';
 
 // Import conditionnel pour éviter les erreurs si les services ne sont pas disponibles
-let sendContactEmail: any;
-let ContactFormData: any;
+import { sendContactEmail } from '@/services/emailjs';
+import { ContactFormData } from '@/types/contact';
 
-try {
-  const emailService = require('@/services/emailjs');
-  sendContactEmail = emailService.sendContactEmail;
-  const contactTypes = require('@/types/contact');
-  ContactFormData = contactTypes.ContactFormData;
-} catch (error) {
-  // Services optionnels - fallback graceful
-  console.log('Services de contact non disponibles:', error);
-}
+const senegalOptions = [
+  {
+    id: 'sine-saloum',
+    name: 'Option Sine Saloum',
+    duration: '2 jours',
+    priceXOF: 190000,
+    priceEUR: Math.round(190000 / 655.957),
+    includes: [
+      '2 nuits supplémentaires',
+      'Transport',
+      'Petit déjeuner',
+      'Déjeuner',
+      'Visites'
+    ],
+    activities: [
+      'Marche avec les lions de Fathala',
+      'Balade sur le delta du Sine Saloum',
+      'Visite du reposoir de Toubacouta',
+      'Visite de l\'île emblématique et traditionnelle de Marlodj'
+    ]
+  },
+  {
+    id: 'casamance',
+    name: 'Option Casamance',
+    duration: '3 jours',
+    priceXOF: 350000,
+    priceEUR: Math.round(350000 / 655.957),
+    includes: [
+      'Trois nuits supplémentaires',
+      'Billet d\'avion Dakar-Casamance aller-retour',
+      'Petit déjeuner',
+      'Déjeuner',
+      'Transport',
+      'Activités'
+    ],
+    activities: [
+      'Visite du musée des traditions Diola',
+      'Visite de l\'île emblématique d\'Eloubalir',
+      'Visite de la case à impluvium, architecture ancestrale de la Casamance',
+      'Séance d\'échange avec sa Majesté le Roi d\'Oussouye',
+      'Balade en pirogue dans la mangrove sur le fleuve Casamance',
+      'Tour de ville de Ziguinchor'
+    ]
+  },
+  {
+    id: 'nord',
+    name: 'Option Nord',
+    duration: '3 jours',
+    priceXOF: 290000,
+    priceEUR: Math.round(290000 / 655.957),
+    includes: [
+      'Une nuit dans le désert de Lompoul',
+      'Une nuit à Saint-Louis',
+      'Petit déjeuner',
+      'Déjeuner',
+      'Transport',
+      'Activités'
+    ],
+    activities: [
+      'Balade découverte du désert de Lompoul à dos de dromadaire',
+      'Soirée feu de camp dans le désert',
+      'Saint-Louis City Tour',
+      'Musée de l\'histoire de Saint-Louis'
+    ]
+  }
+];
 
 type DepartureType = {
   id: number;
@@ -67,7 +125,110 @@ const formatPrice = (priceInEur: number) => {
 };
 
 // Composant de formulaire de réservation simplifié pour la page d'accueil
-const BookingFormHome = ({ departure, onClose }: { departure: DepartureType; onClose: () => void }) => {
+const OptionsSelectorHome = ({ destination, selectedOptions, onOptionsChange }: { destination: string; selectedOptions: any[]; onOptionsChange: (options: any[]) => void }) => {
+  const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
+
+  if (destination !== "Sénégal") return null;
+
+  const toggleOption = (option: any) => {
+    const isSelected = selectedOptions.some(opt => opt.id === option.id);
+    if (isSelected) {
+      onOptionsChange(selectedOptions.filter(opt => opt.id !== option.id));
+    } else {
+      onOptionsChange([...selectedOptions, option]);
+    }
+  };
+
+  const toggleExpanded = (optionId: string) => {
+    setExpandedOptions(prev => ({
+      ...prev,
+      [optionId]: !prev[optionId]
+    }));
+  };
+
+  return (
+    <div className="mt-4 p-4 bg-gray-50 rounded-lg">
+      <h4 className="text-lg font-bold mb-3">Options supplémentaires</h4>
+      <div className="space-y-3">
+        {senegalOptions.map(option => {
+          const isSelected = selectedOptions.some(opt => opt.id === option.id);
+          const isExpanded = expandedOptions[option.id];
+          
+          return (
+            <Card key={option.id} className={`transition-all ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}>
+              <CardContent className="p-3">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleOption(option)}
+                        className={`p-1 ${isSelected ? 'text-primary' : 'text-gray-400'}`}
+                      >
+                        {isSelected ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                      </Button>
+                      <h5 className="font-semibold text-sm">{option.name}</h5>
+                      <span className="text-xs bg-gray-200 px-2 py-1 rounded">{option.duration}</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleExpanded(option.id)}
+                        className="p-1 text-gray-500 hover:text-gray-700"
+                      >
+                        {isExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                      </Button>
+                    </div>
+                    
+                    {isExpanded && (
+                      <div className="ml-6 animate-fade-in">
+                        <div className="mb-2">
+                          <h6 className="font-medium text-xs mb-1">Inclus :</h6>
+                          <ul className="text-xs text-gray-600 space-y-0.5">
+                            {option.includes.map((item, idx) => (
+                              <li key={idx} className="flex items-center">
+                                <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h6 className="font-medium text-xs mb-1">Activités :</h6>
+                          <ul className="text-xs text-gray-600 space-y-0.5">
+                            {option.activities.slice(0, 2).map((activity, idx) => (
+                              <li key={idx} className="flex items-center">
+                                <span className="w-1 h-1 bg-secondary rounded-full mr-2"></span>
+                                {activity}
+                              </li>
+                            ))}
+                            {option.activities.length > 2 && (
+                              <li className="text-xs text-gray-500">
+                                ... et {option.activities.length - 2} autres activités
+                              </li>
+                            )}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  
+                  <div className="text-right ml-3">
+                    <div className="font-bold text-primary text-sm">{formatPrice(option.priceEUR).eur}</div>
+                    <div className="text-xs text-gray-600">{Math.round(option.priceXOF).toLocaleString('fr-FR')} FCFA</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
+const BookingFormHome = ({ departure, selectedOptions, onClose }: { departure: DepartureType; selectedOptions: any[]; onClose: () => void }) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -81,7 +242,9 @@ const BookingFormHome = ({ departure, onClose }: { departure: DepartureType; onC
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   const remainingSeats = departure.availableSeats;
-  const totalPrice = departure.price * formData.numberOfPeople;
+  const totalBasePrice = departure.price * formData.numberOfPeople;
+  const totalOptionsPrice = selectedOptions.reduce((sum, option) => sum + option.priceEUR, 0) * formData.numberOfPeople;
+  const totalPrice = totalBasePrice + totalOptionsPrice;
 
   const handleEmailBooking = async () => {
     if (!sendContactEmail) {
@@ -115,6 +278,9 @@ Je souhaite faire une réservation :
 - Téléphone : ${formData.phone}
 
 💰 Prix total : ${formatPrice(totalPrice).eur} / ${formatPrice(totalPrice).xof}
+
+${selectedOptions.length > 0 ? `🎯 Options sélectionnées :
+${selectedOptions.map(opt => `- ${opt.name} : ${formatPrice(opt.priceEUR).eur}`).join('\n')}` : ''}
 
 ${formData.specialRequests ? `📝 Demandes spéciales : ${formData.specialRequests}` : ''}
 
@@ -152,6 +318,9 @@ Je souhaite faire une réservation :
 
 💰 Prix total : ${formatPrice(totalPrice).eur} / ${formatPrice(totalPrice).xof}
 
+${selectedOptions.length > 0 ? `🎯 Options sélectionnées :
+${selectedOptions.map(opt => `- ${opt.name} : ${formatPrice(opt.priceEUR).eur}`).join('\n')}` : ''}
+
 ${formData.specialRequests ? `📝 Demandes spéciales : ${formData.specialRequests}` : ''}
 
 Merci !`;
@@ -171,7 +340,7 @@ Merci !`;
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Messages de statut */}
+          {/* Messages de statut - identique */}
           {submitStatus === 'success' && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <div className="flex items-center space-x-2">
@@ -190,7 +359,7 @@ Merci !`;
             </div>
           )}
 
-          {/* Résumé du voyage */}
+          {/* Résumé du voyage - mis à jour */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold mb-2">Résumé du voyage</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -203,9 +372,20 @@ Merci !`;
                 <p><strong>Prix de base :</strong> {formatPrice(departure.price).eur}</p>
               </div>
             </div>
+            
+            {selectedOptions.length > 0 && (
+              <div className="mt-4">
+                <h4 className="font-medium mb-2">Options sélectionnées :</h4>
+                {selectedOptions.map(option => (
+                  <div key={option.id} className="flex justify-between text-sm">
+                    <span>{option.name}</span>
+                    <span>{formatPrice(option.priceEUR).eur}</span>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
-
-          {/* Formulaire de réservation */}
+              {/* Formulaire de réservation */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Prénom *</label>
@@ -386,6 +566,10 @@ const DepartureCalendar = () => {
 
 const DepartureCard = ({ departure }: { departure: DepartureType }) => {
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
+
+  const totalOptionsPrice = selectedOptions.reduce((sum, option) => sum + option.priceEUR, 0);
+  const totalPrice = departure.price + totalOptionsPrice;
 
   return (
     <>
@@ -417,7 +601,18 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
             </div>
             <div className="p-4 flex flex-col items-center justify-center">
               <p className="text-sm text-gray-500">À partir de</p>
-              <p className="font-bold text-lg mb-2">{departure.price}€</p>
+              <div className="text-center mb-2">
+                <p className="font-bold text-lg text-primary">{formatPrice(departure.price).eur}</p>
+                <p className="text-xs text-gray-600">{formatPrice(departure.price).xof}</p>
+              </div>
+              
+              {totalOptionsPrice > 0 && (
+                <div className="text-center mb-2 p-2 bg-primary/5 rounded text-xs">
+                  <p className="text-gray-500">Total avec options</p>
+                  <p className="font-bold text-primary">{formatPrice(totalPrice).eur}</p>
+                </div>
+              )}
+              
               <Button 
                 size="sm" 
                 className="bg-primary hover:bg-primary/90 text-white"
@@ -427,12 +622,20 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
               </Button>
             </div>
           </div>
+          
+          {/* Ajout du sélecteur d'options */}
+          <OptionsSelectorHome 
+            destination={departure.destination}
+            selectedOptions={selectedOptions}
+            onOptionsChange={setSelectedOptions}
+          />
         </CardContent>
       </Card>
       
       {showBookingForm && (
         <BookingFormHome
           departure={departure}
+          selectedOptions={selectedOptions}
           onClose={() => setShowBookingForm(false)}
         />
       )}
