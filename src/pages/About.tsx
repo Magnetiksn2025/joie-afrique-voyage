@@ -139,7 +139,7 @@ const About = () => {
               
               <h4 className="font-bold mb-2">Contact:</h4>
               <p className="text-gray-700">Tél: +221 78 308 35 35 / +221 76 343 35 35</p>
-              <p className="text-gray-700">Email: lrad.ccia101@gmail.com</p>
+              <p className="text-gray-700">Email: contact@lrad-tours.com</p>
               <p className="text-gray-700">Web: www.lrad-tours.com</p>
             </div>
           </section>
