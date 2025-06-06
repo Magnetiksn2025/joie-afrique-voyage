@@ -236,7 +236,6 @@ const BookingForm = ({ departure, selectedOptions, onClose }: { departure: Depar
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-  const navigate = useNavigate();
 
   const remainingSeats = departure.totalSeats - departure.bookedSeats;
   const totalBasePrice = departure.price * formData.numberOfPeople;
@@ -281,34 +280,9 @@ Merci !`
 
       await sendContactEmail(emailData);
       setSubmitStatus('success');
-      
-      // Préparer les données pour la page de confirmation
-      const bookingData = {
-        departure: {
-          id: departure.id,
-          destination: departure.destination,
-          departureDate: departure.departureDate,
-          returnDate: departure.returnDate,
-          duration: departure.duration,
-          price: departure.price
-        },
-        customer: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          email: formData.email,
-          phone: formData.phone,
-          numberOfPeople: formData.numberOfPeople,
-          specialRequests: formData.specialRequests
-        },
-        selectedOptions: selectedOptions,
-        totalPrice: totalPrice
-      };
-
-      // Redirection vers la page de confirmation
       setTimeout(() => {
-        navigate('/booking-confirmation', { state: { bookingData } });
-      }, 1500);
-      
+        onClose();
+      }, 2000);
     } catch (error) {
       console.error('Erreur lors de l\'envoi:', error);
       setSubmitStatus('error');
@@ -343,32 +317,6 @@ ${formData.specialRequests ? `📝 Demandes spéciales : ${formData.specialReque
 Merci !`;
 
     window.open(`https://wa.me/221783083535?text=${encodeURIComponent(message)}`, '_blank');
-    
-    // Préparer les données pour la page de confirmation
-    const bookingData = {
-      departure: {
-        id: departure.id,
-        destination: departure.destination,
-        departureDate: departure.departureDate,
-        returnDate: departure.returnDate,
-        duration: departure.duration,
-        price: departure.price
-      },
-      customer: {
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        numberOfPeople: formData.numberOfPeople,
-        specialRequests: formData.specialRequests
-      },
-      selectedOptions: selectedOptions,
-      totalPrice: totalPrice
-    };
-
-    // Fermer le modal et rediriger vers la page de confirmation
-    onClose();
-    navigate('/booking-confirmation', { state: { bookingData } });
   };
 
   const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phone;
@@ -388,7 +336,7 @@ Merci !`;
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <p className="text-green-800">Votre demande a été envoyée avec succès ! Redirection en cours...</p>
+                <p className="text-green-800">Votre demande a été envoyée avec succès ! Nous vous contactons sous 24h.</p>
               </div>
             </div>
           )}
@@ -547,7 +495,7 @@ Merci !`;
   );
 };
 
-// Composant de sélection d'options avec fonctionnalité dépliable en 3 colonnes
+// Composant de sélection d'options avec fonctionnalité dépliable
 const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { destination: string; selectedOptions: any[]; onOptionsChange: (options: any[]) => void }) => {
   const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
 
@@ -572,7 +520,7 @@ const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { de
   return (
     <div className="mt-6 p-6 bg-gray-50 rounded-lg">
       <h3 className="text-xl font-bold mb-4">Options supplémentaires</h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+      <div className="space-y-4">
         {senegalOptions.map(option => {
           const isSelected = selectedOptions.some(opt => opt.id === option.id);
           const isExpanded = expandedOptions[option.id];
@@ -580,9 +528,9 @@ const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { de
           return (
             <Card key={option.id} className={`transition-all ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}>
               <CardContent className="p-4">
-                <div className="flex flex-col">
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center gap-2">
+                <div className="flex items-start justify-between">
+                  <div className="flex-1">
+                    <div className="flex items-center gap-3 mb-2">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -591,57 +539,51 @@ const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { de
                       >
                         {isSelected ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                       </Button>
+                      <h4 className="font-semibold">{option.name}</h4>
                       <Badge variant="outline">{option.duration}</Badge>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => toggleExpanded(option.id)}
+                        className="p-1 text-gray-500 hover:text-gray-700"
+                      >
+                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </Button>
                     </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => toggleExpanded(option.id)}
-                      className="p-1 text-gray-500 hover:text-gray-700"
-                    >
-                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </Button>
+                    
+                    {isExpanded && (
+                      <div className="ml-8 animate-fade-in">
+                        <div className="mb-3">
+                          <h5 className="font-medium text-sm mb-1">Inclus :</h5>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            {option.includes.map((item, idx) => (
+                              <li key={idx} className="flex items-center">
+                                <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
+                                {item}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        
+                        <div>
+                          <h5 className="font-medium text-sm mb-1">Activités :</h5>
+                          <ul className="text-sm text-gray-600 space-y-1">
+                            {option.activities.map((activity, idx) => (
+                              <li key={idx} className="flex items-center">
+                                <span className="w-1.5 h-1.5 bg-secondary rounded-full mr-2"></span>
+                                {activity}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    )}
                   </div>
                   
-                  <h4 className="font-semibold text-sm mb-2">{option.name}</h4>
-                  
-                  <div className="text-center mb-3">
+                  <div className="text-right ml-4">
                     <div className="font-bold text-primary">{formatPrice(option.priceEUR).eur}</div>
-                    <div className="text-xs text-gray-600">{formatPrice(option.priceEUR).xof}</div>
+                    <div className="text-sm text-gray-600">{formatPrice(option.priceEUR).xof}</div>
                   </div>
-                  
-                  {isExpanded && (
-                    <div className="animate-fade-in">
-                      <div className="mb-3">
-                        <h5 className="font-medium text-xs mb-1">Inclus :</h5>
-                        <ul className="text-xs text-gray-600 space-y-1">
-                          {option.includes.map((item, idx) => (
-                            <li key={idx} className="flex items-center">
-                              <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
-                              {item}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      
-                      <div>
-                        <h5 className="font-medium text-xs mb-1">Activités :</h5>
-                        <ul className="text-xs text-gray-600 space-y-1">
-                          {option.activities.slice(0, 3).map((activity, idx) => (
-                            <li key={idx} className="flex items-center">
-                              <span className="w-1 h-1 bg-secondary rounded-full mr-2"></span>
-                              {activity}
-                            </li>
-                          ))}
-                          {option.activities.length > 3 && (
-                            <li className="text-xs text-gray-500 italic">
-                              +{option.activities.length - 3} autres activités...
-                            </li>
-                          )}
-                        </ul>
-                      </div>
-                    </div>
-                  )}
                 </div>
               </CardContent>
             </Card>
@@ -686,43 +628,46 @@ const CalendarPage = () => {
     
     // Filter by month
     if (monthFilter) {
-      filtered = filtered.filter(dep => {
-        const departureMonth = new Date(dep.departureDate).getMonth() + 1;
-        return departureMonth === parseInt(monthFilter);
-      });
-    }
-    
-    // Filtrer les départs passés et garder seulement les 3 prochains départs disponibles
+    filtered = filtered.filter(dep => {
+      const departureMonth = new Date(dep.departureDate).getMonth() + 1;
+      return departureMonth === parseInt(monthFilter);
+    });
+  } else {
+    // **NOUVELLE LOGIQUE** : Si aucun mois n'est sélectionné, afficher seulement les départs futurs
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
     filtered = filtered.filter(dep => {
       const departureDate = new Date(dep.departureDate);
-      return departureDate >= today && (dep.totalSeats - dep.bookedSeats) > 0;
+      return departureDate >= today;
     });
+  }
     
-    // Sort by departure date et garder seulement les 3 plus proches si on vient de la page d'accueil
+    // Afficher tous les départs (passés et futurs) pour le calendrier complet
     const fromHomePage = searchParams.get('fromHome');
-    const sortedFiltered = [...filtered].sort((a, b) => 
-      new Date(a.departureDate).getTime() - new Date(b.departureDate).getTime()
-    );
     
     if (fromHomePage === 'true' && selectedTab !== "Tous") {
-      return sortedFiltered.slice(0, 3);
-    }
+    // Filtrer aussi par places disponibles pour la page d'accueil
+    filtered = filtered.filter(dep => (dep.totalSeats - dep.bookedSeats) > 0);
     
-    return sortedFiltered;
-  };
+    return [...filtered].sort((a, b) => 
+      new Date(a.departureDate).getTime() - new Date(b.departureDate).getTime()
+    ).slice(0, 3);
+  }
+  
+  // Pour le calendrier complet, trier par date
+  return [...filtered].sort((a, b) => 
+    new Date(a.departureDate).getTime() - new Date(b.departureDate).getTime()
+  );
+};
   
   const filteredDepartures = getFilteredDepartures();
 
-  // Statistiques pour le dashboard
+  // Statistiques pour le dashboard (seulement départs disponibles et départs effectués)
   const stats = useMemo(() => {
     const availableCount = allDepartures.filter(d => !isDatePast(d.departureDate) && (d.totalSeats - d.bookedSeats) > 0).length;
-    const fullCount = allDepartures.filter(d => !isDatePast(d.departureDate) && (d.totalSeats - d.bookedSeats) === 0).length;
     const pastCount = allDepartures.filter(d => isDatePast(d.departureDate)).length;
     
-    return { available: availableCount, full: fullCount, past: pastCount };
+    return { available: availableCount, past: pastCount };
   }, [allDepartures]);
 
   return (
@@ -739,8 +684,8 @@ const CalendarPage = () => {
             </p>
           </div>
 
-          {/* Dashboard de statistiques */}
-          <div className="grid md:grid-cols-3 gap-6 mb-8">
+          {/* Dashboard de statistiques (sans les départs complets) */}
+          <div className="grid md:grid-cols-2 gap-6 mb-8">
             <Card>
               <CardHeader className="pb-3">
                 <div className="flex items-center justify-between">
@@ -751,19 +696,6 @@ const CalendarPage = () => {
               <CardContent>
                 <div className="text-2xl font-bold text-green-600">{stats.available}</div>
                 <p className="text-sm text-gray-500">Places encore libres</p>
-              </CardContent>
-            </Card>
-            
-            <Card>
-              <CardHeader className="pb-3">
-                <div className="flex items-center justify-between">
-                  <h3 className="font-semibold">Départs complets</h3>
-                  <XCircle className="h-5 w-5 text-red-600" />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-red-600">{stats.full}</div>
-                <p className="text-sm text-gray-500">Plus de places</p>
               </CardContent>
             </Card>
             
@@ -859,11 +791,11 @@ const CalendarPage = () => {
                   Contactez-nous pour discuter de vos besoins et nous vous proposerons une solution sur mesure.
                 </p>
                 <Button 
-                className="bg-primary hover:bg-primary/90 text-white"
-                onClick={() => navigate('/devis')}
+                  className="bg-primary hover:bg-primary/90 text-white"
+                  onClick={() => navigate('/devis')}
                 >
-                Demander un devis personnalisé
-              </Button>
+                  Demander un devis personnalisé
+                </Button>
               </div>
             </div>
           </div>
@@ -927,16 +859,9 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
   };
 
   const handleDetailsClick = () => {
-  // Mapper correctement les destinations vers leurs slugs
-  const destinationMap: Record<string, string> = {
-    'Sénégal': 'senegal',
-    'Cap Vert': 'capvert', 
-    'Bénin': 'benin'
+    const destinationSlug = departure.destination.toLowerCase().replace('é', 'e').replace('cap vert', 'capvert');
+    navigate(`/destinations/${destinationSlug}`);
   };
-  
-  const destinationSlug = destinationMap[departure.destination] || departure.destination.toLowerCase();
-  navigate(`/destinations/${destinationSlug}`);
-};
   
   return (
     <>
@@ -953,10 +878,10 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
           <div className="grid grid-cols-1 md:grid-cols-6 divide-y md:divide-y-0 md:divide-x">
             <div className="p-4 md:col-span-2">
               <p className="text-sm text-gray-500 mb-1">Dates du voyage</p>
-              <p className={`font-medium ${isPast ? 'text-gray-500' : ''}`}>
+              <p className={`font-medium ${isPast ? 'text-gray-500 line-through' : ''}`}>
                 Du {formatDate(departure.departureDate)}
               </p>
-              <p className={`font-medium ${isPast ? 'text-gray-500' : ''}`}>
+              <p className={`font-medium ${isPast ? 'text-gray-500 line-through' : ''}`}>
                 au {formatDate(departure.returnDate)}
               </p>
             </div>
