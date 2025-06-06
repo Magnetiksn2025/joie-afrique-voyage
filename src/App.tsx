@@ -11,8 +11,6 @@ import NotFound from "./pages/NotFound";
 import DestinationPage from "./pages/Destination";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-
-// Nouvelle page de confirmation
 import BookingConfirmationPage from "./pages/BookingConfirmation";
 
 // Composants de layout

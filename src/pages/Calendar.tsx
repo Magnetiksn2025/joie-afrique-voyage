@@ -223,11 +223,8 @@ const formatDate = (dateString: string): string => {
   }).format(date);
 };
 
-// Composant de formulaire de réservation mis à jour pour Calendar.tsx
-import { useNavigate } from 'react-router-dom';
-
+// Composant de formulaire de réservation
 const BookingForm = ({ departure, selectedOptions, onClose }: { departure: DepartureType; selectedOptions: any[]; onClose: () => void }) => {
-  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -239,6 +236,7 @@ const BookingForm = ({ departure, selectedOptions, onClose }: { departure: Depar
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
+  const navigate = useNavigate();
 
   const remainingSeats = departure.totalSeats - departure.bookedSeats;
   const totalBasePrice = departure.price * formData.numberOfPeople;
@@ -286,16 +284,31 @@ Merci !`
       
       // Préparer les données pour la page de confirmation
       const bookingData = {
-        departure: departure,
-        customer: formData,
+        departure: {
+          id: departure.id,
+          destination: departure.destination,
+          departureDate: departure.departureDate,
+          returnDate: departure.returnDate,
+          duration: departure.duration,
+          price: departure.price
+        },
+        customer: {
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          numberOfPeople: formData.numberOfPeople,
+          specialRequests: formData.specialRequests
+        },
         selectedOptions: selectedOptions,
         totalPrice: totalPrice
       };
-      
+
+      // Redirection vers la page de confirmation
       setTimeout(() => {
-        onClose();
         navigate('/booking-confirmation', { state: { bookingData } });
       }, 1500);
+      
     } catch (error) {
       console.error('Erreur lors de l\'envoi:', error);
       setSubmitStatus('error');
@@ -329,21 +342,33 @@ ${formData.specialRequests ? `📝 Demandes spéciales : ${formData.specialReque
 
 Merci !`;
 
+    window.open(`https://wa.me/221783083535?text=${encodeURIComponent(message)}`, '_blank');
+    
     // Préparer les données pour la page de confirmation
     const bookingData = {
-      departure: departure,
-      customer: formData,
+      departure: {
+        id: departure.id,
+        destination: departure.destination,
+        departureDate: departure.departureDate,
+        returnDate: departure.returnDate,
+        duration: departure.duration,
+        price: departure.price
+      },
+      customer: {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        numberOfPeople: formData.numberOfPeople,
+        specialRequests: formData.specialRequests
+      },
       selectedOptions: selectedOptions,
       totalPrice: totalPrice
     };
 
-    // Rediriger vers WhatsApp et ensuite vers la page de confirmation
-    window.open(`https://wa.me/221783083535?text=${encodeURIComponent(message)}`, '_blank');
-    
-    setTimeout(() => {
-      onClose();
-      navigate('/booking-confirmation', { state: { bookingData } });
-    }, 1000);
+    // Fermer le modal et rediriger vers la page de confirmation
+    onClose();
+    navigate('/booking-confirmation', { state: { bookingData } });
   };
 
   const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phone;
@@ -522,7 +547,7 @@ Merci !`;
   );
 };
 
-// Composant de sélection d'options avec fonctionnalité dépliable
+// Composant de sélection d'options avec fonctionnalité dépliable en 3 colonnes
 const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { destination: string; selectedOptions: any[]; onOptionsChange: (options: any[]) => void }) => {
   const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
 
@@ -547,7 +572,7 @@ const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { de
   return (
     <div className="mt-6 p-6 bg-gray-50 rounded-lg">
       <h3 className="text-xl font-bold mb-4">Options supplémentaires</h3>
-      <div className="space-y-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {senegalOptions.map(option => {
           const isSelected = selectedOptions.some(opt => opt.id === option.id);
           const isExpanded = expandedOptions[option.id];
@@ -555,9 +580,9 @@ const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { de
           return (
             <Card key={option.id} className={`transition-all ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}>
               <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
+                <div className="flex flex-col">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
                       <Button
                         variant="ghost"
                         size="sm"
@@ -566,51 +591,57 @@ const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { de
                       >
                         {isSelected ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                       </Button>
-                      <h4 className="font-semibold">{option.name}</h4>
                       <Badge variant="outline">{option.duration}</Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleExpanded(option.id)}
-                        className="p-1 text-gray-500 hover:text-gray-700"
-                      >
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </Button>
                     </div>
-                    
-                    {isExpanded && (
-                      <div className="ml-8 animate-fade-in">
-                        <div className="mb-3">
-                          <h5 className="font-medium text-sm mb-1">Inclus :</h5>
-                          <ul className="text-sm text-gray-600 space-y-1">
-                            {option.includes.map((item, idx) => (
-                              <li key={idx} className="flex items-center">
-                                <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        
-                        <div>
-                          <h5 className="font-medium text-sm mb-1">Activités :</h5>
-                          <ul className="text-sm text-gray-600 space-y-1">
-                            {option.activities.map((activity, idx) => (
-                              <li key={idx} className="flex items-center">
-                                <span className="w-1.5 h-1.5 bg-secondary rounded-full mr-2"></span>
-                                {activity}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    )}
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => toggleExpanded(option.id)}
+                      className="p-1 text-gray-500 hover:text-gray-700"
+                    >
+                      {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </Button>
                   </div>
                   
-                  <div className="text-right ml-4">
+                  <h4 className="font-semibold text-sm mb-2">{option.name}</h4>
+                  
+                  <div className="text-center mb-3">
                     <div className="font-bold text-primary">{formatPrice(option.priceEUR).eur}</div>
-                    <div className="text-sm text-gray-600">{formatPrice(option.priceEUR).xof}</div>
+                    <div className="text-xs text-gray-600">{formatPrice(option.priceEUR).xof}</div>
                   </div>
+                  
+                  {isExpanded && (
+                    <div className="animate-fade-in">
+                      <div className="mb-3">
+                        <h5 className="font-medium text-xs mb-1">Inclus :</h5>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          {option.includes.map((item, idx) => (
+                            <li key={idx} className="flex items-center">
+                              <span className="w-1 h-1 bg-primary rounded-full mr-2"></span>
+                              {item}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      
+                      <div>
+                        <h5 className="font-medium text-xs mb-1">Activités :</h5>
+                        <ul className="text-xs text-gray-600 space-y-1">
+                          {option.activities.slice(0, 3).map((activity, idx) => (
+                            <li key={idx} className="flex items-center">
+                              <span className="w-1 h-1 bg-secondary rounded-full mr-2"></span>
+                              {activity}
+                            </li>
+                          ))}
+                          {option.activities.length > 3 && (
+                            <li className="text-xs text-gray-500 italic">
+                              +{option.activities.length - 3} autres activités...
+                            </li>
+                          )}
+                        </ul>
+                      </div>
+                    </div>
+                  )}
                 </div>
               </CardContent>
             </Card>
@@ -844,8 +875,6 @@ const CalendarPage = () => {
   );
 };
 
-// Modification du composant DepartureCard dans Calendar.tsx pour repositionner les options
-
 const DepartureCard = ({ departure }: { departure: DepartureType }) => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
@@ -1004,18 +1033,15 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
               )}
             </div>
           </div>
-        </CardContent>
-        
-        {/* Options repositionnées AVANT les boutons de réservation */}
-        {!isPast && (
-          <div className="border-t bg-gray-50">
+          
+          {!isPast && (
             <OptionsSelector 
               destination={departure.destination}
               selectedOptions={selectedOptions}
               onOptionsChange={setSelectedOptions}
             />
-          </div>
-        )}
+          )}
+        </CardContent>
       </Card>
       
       {showBookingForm && (
@@ -1028,4 +1054,5 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
     </>
   );
 };
+
 export default CalendarPage;
