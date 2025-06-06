@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Routes, Route, useLocation } from "react-router-dom";
+import QuoteRequestPage from "./pages/QuoteRequest";
 
 // Pages existantes
 import Index from "./pages/Index";
@@ -11,11 +12,12 @@ import NotFound from "./pages/NotFound";
 import DestinationPage from "./pages/Destination";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import QuoteRequestPage from "./pages/QuoteRequest";
 import BookingConfirmationPage from "./pages/BookingConfirmation";
 
 // Composants de layout
-import NavBar from "@/components/NavBar"; // Utilisez le composant existant
-import Footer from "@/components/Footer"; // Utilisez le composant existant
+import NavBar from "@/components/NavBar";
+import Footer from "@/components/Footer";
 import ScrollToTop from "@/components/common/ScrollToTop";
 import ErrorBoundary from "@/components/common/ErrorBoundary";
 
@@ -27,17 +29,6 @@ const GalleryPlaceholder = () => (
     <NavBar />
     <div className="container mx-auto px-4 py-32 text-center flex-1">
       <h1 className="text-4xl font-bold text-gray-900 mb-4">Galerie</h1>
-      <p className="text-gray-600">Page en cours de développement...</p>
-    </div>
-    <Footer />
-  </div>
-);
-
-const QuotePlaceholder = () => (
-  <div className="min-h-screen flex flex-col">
-    <NavBar />
-    <div className="container mx-auto px-4 py-32 text-center flex-1">
-      <h1 className="text-4xl font-bold text-gray-900 mb-4">Devis personnalisé</h1>
       <p className="text-gray-600">Page en cours de développement...</p>
     </div>
     <Footer />
@@ -74,22 +65,24 @@ const AppWithLayout = () => {
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/reservations" element={<CalendarPage />} />
           
-          {/* Page de confirmation de réservation */}
-          <Route path="/booking-confirmation" element={<BookingConfirmationPage />} />
-          
           {/* Destinations */}
           <Route path="/destinations" element={<DestinationPage />} />
           <Route path="/destinations/:id" element={<DestinationPage />} />
-          <Route path="/destinations/:slug" element={<DestinationPage />} />
           
-          {/* Autres pages */}
+          {/* Pages principales */}
           <Route path="/about" element={<About />} />
           <Route path="/a-propos" element={<About />} />
           <Route path="/contact" element={<Contact />} />
           
-          {/* Nouvelles routes placeholder */}
+          {/* Devis personnalisé */}
+          <Route path="/devis" element={<QuoteRequestPage />} />
+          <Route path="/quote" element={<QuoteRequestPage />} />
+          
+          {/* Confirmation de réservation */}
+          <Route path="/booking-confirmation" element={<BookingConfirmationPage />} />
+          
+          {/* Pages en développement */}
           <Route path="/galerie" element={<GalleryPlaceholder />} />
-          <Route path="/devis" element={<QuotePlaceholder />} />
           <Route path="/mentions-legales" element={<LegalPlaceholder />} />
           
           {/* Page 404 */}

@@ -859,11 +859,11 @@ const CalendarPage = () => {
                   Contactez-nous pour discuter de vos besoins et nous vous proposerons une solution sur mesure.
                 </p>
                 <Button 
-                  className="bg-primary hover:bg-primary/90 text-white"
-                  onClick={() => navigate('/contact')}
+                className="bg-primary hover:bg-primary/90 text-white"
+                onClick={() => navigate('/devis')}
                 >
-                  Demander un devis personnalisé
-                </Button>
+                Demander un devis personnalisé
+              </Button>
               </div>
             </div>
           </div>
@@ -927,9 +927,16 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
   };
 
   const handleDetailsClick = () => {
-    const destinationSlug = departure.destination.toLowerCase().replace('é', 'e').replace('cap vert', 'capvert');
-    navigate(`/destinations/${destinationSlug}`);
+  // Mapper correctement les destinations vers leurs slugs
+  const destinationMap: Record<string, string> = {
+    'Sénégal': 'senegal',
+    'Cap Vert': 'capvert', 
+    'Bénin': 'benin'
   };
+  
+  const destinationSlug = destinationMap[departure.destination] || departure.destination.toLowerCase();
+  navigate(`/destinations/${destinationSlug}`);
+};
   
   return (
     <>

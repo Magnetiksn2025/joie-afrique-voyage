@@ -46,6 +46,9 @@ const NavBar = () => {
             <Home size={18} />
             <span>Accueil</span>
           </Link>
+          <Link to="/devis" className="flex items-center space-x-1 text-gray-700 hover:text-primary font-medium">
+            <span>Devis Personalisés</span>
+          </Link>
           <Link to="/destinations" className="flex items-center space-x-1 text-gray-700 hover:text-primary font-medium">
             <Image size={18} />
             <span>Destinations</span>
