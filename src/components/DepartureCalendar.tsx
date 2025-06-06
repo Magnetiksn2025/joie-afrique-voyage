@@ -228,7 +228,11 @@ const OptionsSelectorHome = ({ destination, selectedOptions, onOptionsChange }: 
   );
 };
 
-const BookingFormHome = ({ departure, selectedOptions, onClose }: { departure: DepartureType; selectedOptions: any[]; onClose: () => void }) => {
+// Composant BookingFormHome mis à jour pour DepartureCalendar.tsx
+import { useNavigate } from 'react-router-dom';
+
+const BookingFormHome = ({ departure, onClose }: { departure: DepartureType; onClose: () => void }) => {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -242,9 +246,7 @@ const BookingFormHome = ({ departure, selectedOptions, onClose }: { departure: D
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
   const remainingSeats = departure.availableSeats;
-  const totalBasePrice = departure.price * formData.numberOfPeople;
-  const totalOptionsPrice = selectedOptions.reduce((sum, option) => sum + option.priceEUR, 0) * formData.numberOfPeople;
-  const totalPrice = totalBasePrice + totalOptionsPrice;
+  const totalPrice = departure.price * formData.numberOfPeople;
 
   const handleEmailBooking = async () => {
     if (!sendContactEmail) {
@@ -279,9 +281,6 @@ Je souhaite faire une réservation :
 
 💰 Prix total : ${formatPrice(totalPrice).eur} / ${formatPrice(totalPrice).xof}
 
-${selectedOptions.length > 0 ? `🎯 Options sélectionnées :
-${selectedOptions.map(opt => `- ${opt.name} : ${formatPrice(opt.priceEUR).eur}`).join('\n')}` : ''}
-
 ${formData.specialRequests ? `📝 Demandes spéciales : ${formData.specialRequests}` : ''}
 
 Merci !`
@@ -289,9 +288,22 @@ Merci !`
 
       await sendContactEmail(emailData);
       setSubmitStatus('success');
+      
+      // Préparer les données pour la page de confirmation
+      const bookingData = {
+        departure: {
+          ...departure,
+          duration: departure.duration || 7 // fallback si duration n'est pas définie
+        },
+        customer: formData,
+        selectedOptions: [], // Pas d'options sur la page d'accueil
+        totalPrice: totalPrice
+      };
+      
       setTimeout(() => {
         onClose();
-      }, 2000);
+        navigate('/booking-confirmation', { state: { bookingData } });
+      }, 1500);
     } catch (error) {
       console.error('Erreur lors de l\'envoi:', error);
       setSubmitStatus('error');
@@ -318,14 +330,28 @@ Je souhaite faire une réservation :
 
 💰 Prix total : ${formatPrice(totalPrice).eur} / ${formatPrice(totalPrice).xof}
 
-${selectedOptions.length > 0 ? `🎯 Options sélectionnées :
-${selectedOptions.map(opt => `- ${opt.name} : ${formatPrice(opt.priceEUR).eur}`).join('\n')}` : ''}
-
 ${formData.specialRequests ? `📝 Demandes spéciales : ${formData.specialRequests}` : ''}
 
 Merci !`;
 
+    // Préparer les données pour la page de confirmation
+    const bookingData = {
+      departure: {
+        ...departure,
+        duration: departure.duration || 7 // fallback si duration n'est pas définie
+      },
+      customer: formData,
+      selectedOptions: [], // Pas d'options sur la page d'accueil
+      totalPrice: totalPrice
+    };
+
+    // Rediriger vers WhatsApp et ensuite vers la page de confirmation
     window.open(`https://wa.me/221783083535?text=${encodeURIComponent(message)}`, '_blank');
+    
+    setTimeout(() => {
+      onClose();
+      navigate('/booking-confirmation', { state: { bookingData } });
+    }, 1000);
   };
 
   const isFormValid = formData.firstName && formData.lastName && formData.email && formData.phone;
@@ -340,12 +366,12 @@ Merci !`;
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-6">
-          {/* Messages de statut - identique */}
+          {/* Messages de statut */}
           {submitStatus === 'success' && (
             <div className="bg-green-50 border border-green-200 rounded-lg p-4">
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <p className="text-green-800">Votre demande a été envoyée avec succès ! Nous vous contactons sous 24h.</p>
+                <p className="text-green-800">Votre demande a été envoyée avec succès ! Redirection en cours...</p>
               </div>
             </div>
           )}
@@ -359,7 +385,7 @@ Merci !`;
             </div>
           )}
 
-          {/* Résumé du voyage - mis à jour */}
+          {/* Résumé du voyage */}
           <div className="bg-gray-50 p-4 rounded-lg">
             <h3 className="font-semibold mb-2">Résumé du voyage</h3>
             <div className="grid grid-cols-2 gap-4 text-sm">
@@ -372,20 +398,9 @@ Merci !`;
                 <p><strong>Prix de base :</strong> {formatPrice(departure.price).eur}</p>
               </div>
             </div>
-            
-            {selectedOptions.length > 0 && (
-              <div className="mt-4">
-                <h4 className="font-medium mb-2">Options sélectionnées :</h4>
-                {selectedOptions.map(option => (
-                  <div key={option.id} className="flex justify-between text-sm">
-                    <span>{option.name}</span>
-                    <span>{formatPrice(option.priceEUR).eur}</span>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
-              {/* Formulaire de réservation */}
+
+          {/* Formulaire de réservation */}
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Prénom *</label>
@@ -502,7 +517,6 @@ Merci !`;
     </div>
   );
 };
-
 const DepartureCalendar = () => {
   const [selectedTab, setSelectedTab] = useState<string>("Senegal");
 

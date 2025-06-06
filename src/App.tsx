@@ -11,7 +11,9 @@ import NotFound from "./pages/NotFound";
 import DestinationPage from "./pages/Destination";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
-import QuoteRequest from "./pages/QuoteRequest";
+
+// Nouvelle page de confirmation
+import BookingConfirmationPage from "./pages/BookingConfirmation";
 
 // Composants de layout
 import NavBar from "@/components/NavBar"; // Utilisez le composant existant
@@ -74,6 +76,9 @@ const AppWithLayout = () => {
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/reservations" element={<CalendarPage />} />
           
+          {/* Page de confirmation de réservation */}
+          <Route path="/booking-confirmation" element={<BookingConfirmationPage />} />
+          
           {/* Destinations */}
           <Route path="/destinations" element={<DestinationPage />} />
           <Route path="/destinations/:id" element={<DestinationPage />} />
@@ -86,7 +91,7 @@ const AppWithLayout = () => {
           
           {/* Nouvelles routes placeholder */}
           <Route path="/galerie" element={<GalleryPlaceholder />} />
-          <Route path="/devis" element={<QuoteRequest />} />
+          <Route path="/devis" element={<QuotePlaceholder />} />
           <Route path="/mentions-legales" element={<LegalPlaceholder />} />
           
           {/* Page 404 */}
