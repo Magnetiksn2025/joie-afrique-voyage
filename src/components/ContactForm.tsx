@@ -28,10 +28,23 @@ const ContactForm: React.FC = () => {
       setFormStatus('success');
       setSubmitMessage('Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.');
       reset(); // Réinitialise le formulaire
+      
+      // Scroll automatique vers le haut pour voir le message de succès
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
     } catch (error) {
       setFormStatus('error');
       setSubmitMessage('Une erreur est survenue lors de l\'envoi. Veuillez réessayer.');
       console.error('Erreur envoi formulaire:', error);
+      
+      // Scroll vers le haut également en cas d'erreur
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     }
   };
 

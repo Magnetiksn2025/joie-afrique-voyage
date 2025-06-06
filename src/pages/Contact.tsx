@@ -30,10 +30,23 @@ const ContactPage: React.FC = () => {
       setFormStatus('success');
       setSubmitMessage('Votre message a été envoyé avec succès ! Nous vous répondrons dans les plus brefs délais.');
       reset(); // Réinitialise le formulaire
+      
+      // Scroll automatique vers le haut pour voir le message de succès
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+      
     } catch (error) {
       setFormStatus('error');
       setSubmitMessage('Une erreur est survenue lors de l\'envoi. Veuillez réessayer ou nous contacter directement.');
       console.error('Erreur envoi formulaire:', error);
+      
+      // Scroll vers le haut également en cas d'erreur
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
     }
   };
 
@@ -85,8 +98,8 @@ const ContactPage: React.FC = () => {
                     </div>
                     <div>
                       <h3 className="font-semibold mb-1">Email</h3>
-                      <p className="text-gray-600">contact@lrad-tours.com</p>
-                      <p className="text-gray-600">contact@lrad-tours.com</p>
+                      <p className="text-gray-600">lrad.ccia101@gmail.com</p>
+                      <p className="text-gray-600">contact@lradtourisme.com</p>
                     </div>
                   </div>
                   
