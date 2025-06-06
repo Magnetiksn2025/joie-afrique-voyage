@@ -52,3 +52,11 @@ export interface EmailJSConfig {
   templateId: string;
   publicKey: string;
 }
+export const extendedContactFormSchema = contactFormSchema.extend({
+  contact_preference: z.enum(['email', 'phone', 'whatsapp']).optional(),
+  travel_date: z.string().optional(),
+  travelers: z.number().min(1).max(50).optional(),
+  budget: z.string().optional(),
+});
+
+export type ExtendedContactFormData = z.infer<typeof extendedContactFormSchema>;

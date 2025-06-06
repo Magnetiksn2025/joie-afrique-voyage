@@ -28,14 +28,14 @@ const initEmailJS = (): void => {
 };
 
 // Envoi de l'email
-export const sendContactEmail = async (
-  formData: ContactFormData
-): Promise<EmailJSResponse> => {
-  try {
-    // Validation de la configuration
-    if (!validateConfig()) {
-      throw new Error('Configuration EmailJS invalide');
-    }
+export const extendedContactFormSchema = contactFormSchema.extend({
+  contact_preference: z.enum(['email', 'phone', 'whatsapp']).optional(),
+  travel_date: z.string().optional(),
+  travelers: z.number().min(1).max(50).optional(),
+  budget: z.string().optional(),
+});
+
+export type ExtendedContactFormData = z.infer<typeof extendedContactFormSchema>;
 
     // Initialisation
     initEmailJS();
