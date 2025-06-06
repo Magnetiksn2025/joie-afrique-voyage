@@ -121,10 +121,10 @@ const NotFound = () => {
             </a>
             {' '}ou par email à{' '}
             <a 
-              href="mailto:contact@lradtourisme.com" 
+              href="mailto:contact@lrad-tours.com" 
               className="font-semibold text-primary hover:underline"
             >
-              contact@lradtourisme.com
+              contact@lrad-tours.com
             </a>
           </p>
         </div>
