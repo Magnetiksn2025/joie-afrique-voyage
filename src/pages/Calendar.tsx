@@ -242,6 +242,16 @@ const BookingForm = ({ departure, selectedOptions, onClose }: { departure: Depar
   const totalOptionsPrice = selectedOptions.reduce((sum, option) => sum + option.priceEUR, 0) * formData.numberOfPeople;
   const totalPrice = totalBasePrice + totalOptionsPrice;
 
+  // Fonction pour faire défiler vers le haut du formulaire
+  const scrollToTop = () => {
+    const formElement = document.querySelector('[data-booking-form]');
+    if (formElement) {
+      formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
+
   const handleEmailBooking = async () => {
     setIsSubmitting(true);
     setSubmitStatus('idle');
@@ -280,12 +290,21 @@ Merci !`
 
       await sendContactEmail(emailData);
       setSubmitStatus('success');
+      // Faire défiler vers le haut pour afficher le message de succès
+      setTimeout(() => {
+        scrollToTop();
+      }, 100);
+      
       setTimeout(() => {
         onClose();
-      }, 2000);
+      }, 3000); // Fermer après 3 secondes au lieu de 2
     } catch (error) {
       console.error('Erreur lors de l\'envoi:', error);
       setSubmitStatus('error');
+      // Faire défiler vers le haut pour afficher le message d'erreur
+      setTimeout(() => {
+        scrollToTop();
+      }, 100);
     } finally {
       setIsSubmitting(false);
     }
@@ -323,7 +342,7 @@ Merci !`;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto">
+      <Card className="w-full max-w-2xl max-h-[90vh] overflow-y-auto" data-booking-form>
         <CardHeader>
           <CardTitle className="flex justify-between items-center">
             Réservation - {departure.destination}
@@ -333,19 +352,19 @@ Merci !`;
         <CardContent className="space-y-6">
           {/* Messages de statut */}
           {submitStatus === 'success' && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4 animate-pulse">
               <div className="flex items-center space-x-2">
                 <CheckCircle className="w-5 h-5 text-green-600" />
-                <p className="text-green-800">Votre demande a été envoyée avec succès ! Nous vous contactons sous 24h.</p>
+                <p className="text-green-800 font-medium">Votre demande a été envoyée avec succès ! Nous vous contactons sous 24h.</p>
               </div>
             </div>
           )}
 
           {submitStatus === 'error' && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="bg-red-50 border border-red-200 rounded-lg p-4 animate-pulse">
               <div className="flex items-center space-x-2">
                 <XCircle className="w-5 h-5 text-red-600" />
-                <p className="text-red-800">Erreur lors de l'envoi. Veuillez réessayer ou utiliser WhatsApp.</p>
+                <p className="text-red-800 font-medium">Erreur lors de l'envoi. Veuillez réessayer ou utiliser WhatsApp.</p>
               </div>
             </div>
           )}
