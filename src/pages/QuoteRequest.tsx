@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   Users, 
   Calendar, 
@@ -44,6 +44,7 @@ const QuoteRequestPage = () => {
   const [formStatus, setFormStatus] = useState<FormStatus>('idle');
   const [submitMessage, setSubmitMessage] = useState<string>('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const successMessageRef = useRef<HTMLDivElement>(null);
 
   const [formData, setFormData] = useState<FormData>({
     firstName: '',
@@ -96,6 +97,19 @@ const QuoteRequestPage = () => {
     'Photographie',
     'Musique et danse traditionnelle'
   ];
+
+  // Fonction pour faire défiler vers le message de succès
+  const scrollToSuccessMessage = () => {
+    if (successMessageRef.current) {
+      successMessageRef.current.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center' 
+      });
+    } else {
+      // Fallback: scroll vers le haut de la page
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -219,6 +233,11 @@ ${formData.firstName} ${formData.lastName}`
       setFormStatus('success');
       setSubmitMessage('Votre demande de devis a été envoyée avec succès ! Notre équipe vous contactera sous 24h avec une proposition personnalisée.');
       
+      // Faire défiler vers le message de succès après un court délai
+      setTimeout(() => {
+        scrollToSuccessMessage();
+      }, 100);
+      
       setFormData({
         firstName: '',
         lastName: '',
@@ -238,6 +257,11 @@ ${formData.firstName} ${formData.lastName}`
       setFormStatus('error');
       setSubmitMessage('Une erreur est survenue lors de l\'envoi. Veuillez réessayer ou nous contacter directement.');
       console.error('Erreur envoi devis:', error);
+      
+      // Faire défiler vers le message d'erreur après un court délai
+      setTimeout(() => {
+        scrollToSuccessMessage();
+      }, 100);
     }
   };
 
@@ -299,8 +323,9 @@ ${formData.firstName} ${formData.lastName}`
           </div>
 
           <div className="max-w-5xl mx-auto">
+            {/* Messages de statut avec référence pour le scroll */}
             {formStatus === 'success' && (
-              <div className="mb-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl">
+              <div ref={successMessageRef} className="mb-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-2xl animate-pulse">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center">
                     <CheckCircle className="w-6 h-6 text-white" />
@@ -314,7 +339,7 @@ ${formData.firstName} ${formData.lastName}`
             )}
 
             {formStatus === 'error' && (
-              <div className="mb-8 p-6 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl">
+              <div ref={successMessageRef} className="mb-8 p-6 bg-gradient-to-r from-red-50 to-pink-50 border border-red-200 rounded-2xl animate-pulse">
                 <div className="flex items-center space-x-4">
                   <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center">
                     <AlertCircle className="w-6 h-6 text-white" />

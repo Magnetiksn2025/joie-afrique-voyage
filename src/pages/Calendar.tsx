@@ -244,13 +244,11 @@ const BookingForm = ({ departure, selectedOptions, onClose }: { departure: Depar
 
   // Fonction pour faire défiler vers le haut du formulaire
   const scrollToTop = () => {
-    const formElement = document.querySelector('[data-booking-form]');
-    if (formElement) {
-      formElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  const modalContent = document.querySelector('[data-booking-form]');
+  if (modalContent) {
+    modalContent.scrollTop = 0;
+  }
+};
 
   const handleEmailBooking = async () => {
     setIsSubmitting(true);
