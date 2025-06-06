@@ -11,6 +11,7 @@ import NotFound from "./pages/NotFound";
 import DestinationPage from "./pages/Destination";
 import About from "./pages/About";
 import Contact from "./pages/Contact";
+import QuoteRequest from "./pages/QuoteRequest";
 
 // Composants de layout
 import NavBar from "@/components/NavBar"; // Utilisez le composant existant
@@ -85,7 +86,7 @@ const AppWithLayout = () => {
           
           {/* Nouvelles routes placeholder */}
           <Route path="/galerie" element={<GalleryPlaceholder />} />
-          <Route path="/devis" element={<QuotePlaceholder />} />
+          <Route path="/devis" element={<QuoteRequest />} />
           <Route path="/mentions-legales" element={<LegalPlaceholder />} />
           
           {/* Page 404 */}
