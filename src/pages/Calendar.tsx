@@ -912,9 +912,19 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
   };
 
   const handleDetailsClick = () => {
-    const destinationSlug = departure.destination.toLowerCase().replace('é', 'e').replace('cap vert', 'capvert');
-    navigate(`/destinations/${destinationSlug}`);
+  let destinationSlug = departure.destination.toLowerCase();
+  
+  // Mapping direct des destinations
+  const slugMapping: Record<string, string> = {
+    'sénégal': 'senegal',
+    'cap vert': 'capvert', 
+    'bénin': 'benin'
   };
+  
+  destinationSlug = slugMapping[destinationSlug] || destinationSlug;
+  
+  navigate(`/destinations/${destinationSlug}`);
+};
   
   return (
     <>
