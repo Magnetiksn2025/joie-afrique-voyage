@@ -109,7 +109,15 @@ type DepartureType = {
   duration: number;
   description?: string;
 };
-
+type SenegalOption = {
+  id: string;
+  name: string;
+  duration: string;
+  priceXOF: number;
+  priceEUR: number;
+  includes: string[];
+  activities: string[];
+};
 // Données mises à jour pour 2025 avec places restantes
 const departures2025: Record<string, DepartureType[]> = {
   "Senegal": [
@@ -224,7 +232,14 @@ const formatDate = (dateString: string): string => {
 };
 
 // Composant de formulaire de réservation
-const BookingForm = ({ departure, selectedOptions, onClose }: { departure: DepartureType; selectedOptions: any[]; onClose: () => void }) => {
+const BookingForm = ({ departure, selectedOptions, onClose, navigate }: 
+  { 
+  departure: DepartureType; 
+  selectedOptions: SenegalOption[]; // Au lieu de any[]
+  onClose: () => void; 
+  navigate: (path: string, options?: { state?: any; replace?: boolean }) => void;
+}
+) => {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -236,24 +251,45 @@ const BookingForm = ({ departure, selectedOptions, onClose }: { departure: Depar
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
-
+  const [submitMessage, setSubmitMessage] = useState<string>(''); // AJOUTEZ CETTE LIGNE
   const remainingSeats = departure.totalSeats - departure.bookedSeats;
   const totalBasePrice = departure.price * formData.numberOfPeople;
   const totalOptionsPrice = selectedOptions.reduce((sum, option) => sum + option.priceEUR, 0) * formData.numberOfPeople;
   const totalPrice = totalBasePrice + totalOptionsPrice;
 
   const handleEmailBooking = async () => {
-    setIsSubmitting(true);
-    setSubmitStatus('idle');
+  setIsSubmitting(true);
+  setSubmitStatus('idle');
 
-    try {
-      const emailData: ContactFormData = {
-        from_name: `${formData.firstName} ${formData.lastName}`,
-        from_email: formData.email,
-        phone: formData.phone,
-        subject: `Réservation - ${departure.destination} - ${formatDate(departure.departureDate)}`,
-        destination: departure.destination,
-        message: `Bonjour LRAD Tourisme,
+  const bookingData = {
+    departure: {
+      id: departure.id,
+      destination: departure.destination,
+      departureDate: departure.departureDate,
+      returnDate: departure.returnDate,
+      duration: departure.duration,
+      price: departure.price
+    },
+    customer: {
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      numberOfPeople: formData.numberOfPeople,
+      specialRequests: formData.specialRequests
+    },
+    selectedOptions: selectedOptions,
+    totalPrice: totalPrice
+  };
+
+  try {
+    const emailData: ContactFormData = {
+      from_name: `${formData.firstName} ${formData.lastName}`,
+      from_email: formData.email,
+      phone: formData.phone,
+      subject: `Réservation - ${departure.destination} - ${formatDate(departure.departureDate)}`,
+      destination: departure.destination,
+      message: `Bonjour LRAD Tourisme,
 
 Je souhaite faire une réservation :
 
@@ -276,20 +312,24 @@ ${selectedOptions.map(opt => `- ${opt.name} : ${formatPrice(opt.priceEUR).eur}`)
 ${formData.specialRequests ? `📝 Demandes spéciales : ${formData.specialRequests}` : ''}
 
 Merci !`
-      };
+    };
 
-      await sendContactEmail(emailData);
-      setSubmitStatus('success');
-      setTimeout(() => {
-        onClose();
-      }, 2000);
-    } catch (error) {
-      console.error('Erreur lors de l\'envoi:', error);
-      setSubmitStatus('error');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+    await sendContactEmail(emailData);
+    
+    // Fermer le modal et rediriger
+    onClose();
+    navigate('/booking-confirmation', { 
+      state: { bookingData }
+    });
+
+  } catch (error) {
+    console.error('Erreur lors de l\'envoi de l\'email:', error);
+    setSubmitStatus('error');
+    setSubmitMessage('Une erreur est survenue lors de l\'envoi. Veuillez réessayer ou nous contacter directement.');
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const handleWhatsAppBooking = () => {
     const message = `Bonjour LRAD Tourisme,
@@ -496,12 +536,18 @@ Merci !`;
 };
 
 // Composant de sélection d'options avec fonctionnalité dépliable
-const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { destination: string; selectedOptions: any[]; onOptionsChange: (options: any[]) => void }) => {
+const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: 
+  { 
+  destination: string; 
+  selectedOptions: SenegalOption[]; // Au lieu de any[]
+  onOptionsChange: (options: SenegalOption[]) => void; // Au lieu de any[]
+}
+) => {
   const [expandedOptions, setExpandedOptions] = useState<Record<string, boolean>>({});
 
   if (destination !== "Sénégal") return null;
 
-  const toggleOption = (option: any) => {
+  const toggleOption = (option: SenegalOption) => {
     const isSelected = selectedOptions.some(opt => opt.id === option.id);
     if (isSelected) {
       onOptionsChange(selectedOptions.filter(opt => opt.id !== option.id));
@@ -518,79 +564,86 @@ const OptionsSelector = ({ destination, selectedOptions, onOptionsChange }: { de
   };
 
   return (
-    <div className="mt-6 p-6 bg-gray-50 rounded-lg">
-      <h3 className="text-xl font-bold mb-4">Options supplémentaires</h3>
-      <div className="space-y-4">
-        {senegalOptions.map(option => {
-          const isSelected = selectedOptions.some(opt => opt.id === option.id);
-          const isExpanded = expandedOptions[option.id];
-          
-          return (
-            <Card key={option.id} className={`transition-all ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}>
-              <CardContent className="p-4">
-                <div className="flex items-start justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleOption(option)}
-                        className={`p-1 ${isSelected ? 'text-primary' : 'text-gray-400'}`}
-                      >
-                        {isSelected ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
-                      </Button>
-                      <h4 className="font-semibold">{option.name}</h4>
-                      <Badge variant="outline">{option.duration}</Badge>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => toggleExpanded(option.id)}
-                        className="p-1 text-gray-500 hover:text-gray-700"
-                      >
-                        {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      </Button>
-                    </div>
-                    
-                    {isExpanded && (
-                      <div className="ml-8 animate-fade-in">
-                        <div className="mb-3">
-                          <h5 className="font-medium text-sm mb-1">Inclus :</h5>
-                          <ul className="text-sm text-gray-600 space-y-1">
-                            {option.includes.map((item, idx) => (
-                              <li key={idx} className="flex items-center">
-                                <span className="w-1.5 h-1.5 bg-primary rounded-full mr-2"></span>
-                                {item}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        
-                        <div>
-                          <h5 className="font-medium text-sm mb-1">Activités :</h5>
-                          <ul className="text-sm text-gray-600 space-y-1">
-                            {option.activities.map((activity, idx) => (
-                              <li key={idx} className="flex items-center">
-                                <span className="w-1.5 h-1.5 bg-secondary rounded-full mr-2"></span>
-                                {activity}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                      </div>
-                    )}
+    <div className="space-y-4">
+  <div className="grid grid-cols-1 md:grid-cols-3 gap-4"> {/* Changé de space-y-4 vers grid */}
+    {senegalOptions.map(option => {
+      const isSelected = selectedOptions.some(opt => opt.id === option.id);
+      const isExpanded = expandedOptions[option.id];
+      
+      return (
+        <Card key={option.id} className={`transition-all ${isSelected ? 'ring-2 ring-primary bg-primary/5' : ''}`}>
+          <CardContent className="p-4">
+            <div className="space-y-3"> {/* Changé la structure pour un affichage vertical */}
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleOption(option)}
+                    className={`p-1 ${isSelected ? 'text-primary' : 'text-gray-400'}`}
+                  >
+                    {isSelected ? <Minus className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => toggleExpanded(option.id)}
+                    className="p-1 text-gray-500 hover:text-gray-700"
+                  >
+                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </Button>
+                </div>
+              </div>
+              
+              <div>
+                <h4 className="font-semibold text-sm mb-1">{option.name}</h4>
+                <Badge variant="outline" className="text-xs">{option.duration}</Badge>
+              </div>
+              
+              <div className="text-center">
+                <div className="font-bold text-primary text-sm">{formatPrice(option.priceEUR).eur}</div>
+                <div className="text-xs text-gray-600">{formatPrice(option.priceEUR).xof}</div>
+              </div>
+              
+              {isExpanded && (
+                <div className="animate-fade-in space-y-2">
+                  <div>
+                    <h5 className="font-medium text-xs mb-1">Inclus :</h5>
+                    <ul className="text-xs text-gray-600 space-y-1">
+                      {option.includes.map((item, idx) => (
+                        <li key={idx} className="flex items-start">
+                          <span className="w-1 h-1 bg-primary rounded-full mr-2 mt-1.5 flex-shrink-0"></span>
+                          <span>{item}</span>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
                   
-                  <div className="text-right ml-4">
-                    <div className="font-bold text-primary">{formatPrice(option.priceEUR).eur}</div>
-                    <div className="text-sm text-gray-600">{formatPrice(option.priceEUR).xof}</div>
+                  <div>
+                    <h5 className="font-medium text-xs mb-1">Activités :</h5>
+                    <ul className="text-xs text-gray-600 space-y-1">
+                      {option.activities.slice(0, 2).map((activity, idx) => (
+                        <li key={idx} className="flex items-start">
+                          <span className="w-1 h-1 bg-secondary rounded-full mr-2 mt-1.5 flex-shrink-0"></span>
+                          <span>{activity}</span>
+                        </li>
+                      ))}
+                      {option.activities.length > 2 && (
+                        <li className="text-xs text-gray-500 italic">
+                          et {option.activities.length - 2} autres activités...
+                        </li>
+                      )}
+                    </ul>
                   </div>
                 </div>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </div>
-    </div>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      );
+    })}
+  </div>
+</div>
   );
 };
 
@@ -809,7 +862,7 @@ const CalendarPage = () => {
 
 const DepartureCard = ({ departure }: { departure: DepartureType }) => {
   const [showBookingForm, setShowBookingForm] = useState(false);
-  const [selectedOptions, setSelectedOptions] = useState<any[]>([]);
+  const [selectedOptions, setSelectedOptions] = useState<SenegalOption[]>([]); // Au lieu de any[]
   const navigate = useNavigate();
   
   const isPast = isDatePast(departure.departureDate);
@@ -981,6 +1034,7 @@ const DepartureCard = ({ departure }: { departure: DepartureType }) => {
           departure={departure}
           selectedOptions={selectedOptions}
           onClose={() => setShowBookingForm(false)}
+          navigate={navigate} // AJOUTEZ CETTE LIGNE
         />
       )}
     </>
